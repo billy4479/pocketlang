@@ -1,11 +1,14 @@
 cmake_minimum_required(VERSION 3.7)
 project(pocketlang)
 
-option(MAKE_CLI "Do NOT build the CLI" ON)
-option(MAKE_STATIC "Do NOT build the static library" ON)
-option(MAKE_SHARED "Do NOT build the shared library" ON)
+option(MAKE_CLI "Do build the CLI" ON)
+option(MAKE_STATIC "Do build the static library" ON)
+option(MAKE_SHARED "Do build the shared library" ON)
 
-add_compile_options(-Wall -Wextra)
+add_compile_options(-Wall)
+if(NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
+    add_compile_options(-Wextra)
+endif()
 
 if(MAKE_CLI)
     set(MAKE_STATIC ON)

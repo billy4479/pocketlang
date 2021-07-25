@@ -5,9 +5,10 @@ option(MAKE_CLI "Do build the CLI" ON)
 option(MAKE_STATIC "Do build the static library" ON)
 option(MAKE_SHARED "Do build the shared library" ON)
 
-add_compile_options(-Wall)
-if(NOT CMAKE_C_COMPILER_ID STREQUAL "MSVC")
-    add_compile_options(-Wextra)
+if(MSVC)
+    add_compile_options(/W3)
+else()
+    add_compile_options(-Wall -Wextra)
 endif()
 
 if(MAKE_CLI)
@@ -21,11 +22,11 @@ if(MAKE_SHARED)
     set(SHARED_TARGET ${PROJECT_NAME}_shared)
 endif()
 
-file( GLOB LIB_SOURCES src/*.c )
+file(GLOB LIB_SOURCES src/*.c)
 
 if(MAKE_CLI)
     set(CLI_TARGET ${PROJECT_NAME})
-    file( GLOB CLI_SOURCES cli/*.c )
+    file(GLOB CLI_SOURCES cli/*.c)
 endif()
 
 if(MAKE_STATIC)

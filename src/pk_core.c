@@ -41,8 +41,8 @@
 static Script* newModuleInternal(PKVM* vm, const char* name);
 
 // The internal function to add global value to a module.
-static void moduleAddGlobalInternal(PKVM* vm, Script* script,
-                                    const char* name, Var value);
+static void moduleAddGlobalInternal(PKVM* vm, Script* script, const char* name,
+                                    Var value);
 
 // The internal function to add functions to a module.
 static void moduleAddFunctionInternal(PKVM* vm, Script* script,
@@ -56,8 +56,8 @@ PkHandle* pkNewModule(PKVM* vm, const char* name) {
 }
 
 // pkModuleAddGlobal implementation (see pocketlang.h for description).
-PK_PUBLIC void pkModuleAddGlobal(PKVM* vm, PkHandle* module,
-                                 const char* name, PkHandle* value) {
+PK_PUBLIC void pkModuleAddGlobal(PKVM* vm, PkHandle* module, const char* name,
+                                 PkHandle* value) {
   __ASSERT(module != NULL, "Argument module was NULL.");
   __ASSERT(value != NULL, "Argument value was NULL.");
   Var scr = module->value;
@@ -76,8 +76,7 @@ void pkModuleAddFunction(PKVM* vm, PkHandle* module, const char* name,
                             NULL /*TODO: Public API for function docstring.*/);
 }
 
-PkHandle* pkGetFunction(PKVM* vm, PkHandle* module,
-                                  const char* name) {
+PkHandle* pkGetFunction(PKVM* vm, PkHandle* module, const char* name) {
   __ASSERT(module != NULL, "Argument module was NULL.");
   Var scr = module->value;
   __ASSERT(IS_OBJ_TYPE(scr, OBJ_SCRIPT), "Given handle is not a module");
@@ -107,35 +106,35 @@ PkHandle* pkGetFunction(PKVM* vm, PkHandle* module,
     return;                    \
   } while (false)
 
-#define RET_ERR(err)           \
-  do {                         \
-    VM_SET_ERROR(vm, err);     \
-    RET(VAR_NULL);             \
-  } while(false)
+#define RET_ERR(err)       \
+  do {                     \
+    VM_SET_ERROR(vm, err); \
+    RET(VAR_NULL);         \
+  } while (false)
 
 // Check for errors in before calling the get arg public api function.
-#define CHECK_GET_ARG_API_ERRORS()                                          \
-  do {                                                                      \
-    __ASSERT(vm->fiber != NULL,                                             \
-             "This function can only be called at runtime.");               \
-    if (arg != 0) {/* If Native setter, the value would be at fiber->ret */ \
-      __ASSERT(arg > 0 && arg <= ARGC, "Invalid argument index.");          \
-    }                                                                       \
-    __ASSERT(value != NULL, "Argument [value] was NULL.");                  \
+#define CHECK_GET_ARG_API_ERRORS()                                           \
+  do {                                                                       \
+    __ASSERT(vm->fiber != NULL,                                              \
+             "This function can only be called at runtime.");                \
+    if (arg != 0) { /* If Native setter, the value would be at fiber->ret */ \
+      __ASSERT(arg > 0 && arg <= ARGC, "Invalid argument index.");           \
+    }                                                                        \
+    __ASSERT(value != NULL, "Argument [value] was NULL.");                   \
   } while (false)
 
 // Set error for incompatible type provided as an argument. (TODO: got type).
-#define ERR_INVALID_ARG_TYPE(m_type)                                        \
-do {                                                                        \
-  if (arg != 0) { /* If Native setter, arg index would be 0. */             \
-    char buff[STR_INT_BUFF_SIZE];                                           \
-    sprintf(buff, "%d", arg);                                               \
-    VM_SET_ERROR(vm, stringFormat(vm, "Expected a '$' at argument $.",      \
-                                      m_type, buff));                       \
-  } else {                                                                  \
-    VM_SET_ERROR(vm, stringFormat(vm, "Expected a '$'.", m_type));          \
-  }                                                                         \
-} while (false)
+#define ERR_INVALID_ARG_TYPE(m_type)                                     \
+  do {                                                                   \
+    if (arg != 0) { /* If Native setter, arg index would be 0. */        \
+      char buff[STR_INT_BUFF_SIZE];                                      \
+      sprintf(buff, "%d", arg);                                          \
+      VM_SET_ERROR(vm, stringFormat(vm, "Expected a '$' at argument $.", \
+                                    m_type, buff));                      \
+    } else {                                                             \
+      VM_SET_ERROR(vm, stringFormat(vm, "Expected a '$'.", m_type));     \
+    }                                                                    \
+  } while (false)
 
 // pkGetArgc implementation (see pocketlang.h for description).
 int pkGetArgc(const PKVM* vm) {
@@ -148,15 +147,17 @@ bool pkCheckArgcRange(PKVM* vm, int argc, int min, int max) {
   ASSERT(min <= max, "invalid argc range (min > max).");
 
   if (argc < min) {
-    char buff[STR_INT_BUFF_SIZE]; sprintf(buff, "%d", min);
-    VM_SET_ERROR(vm, stringFormat(vm, "Expected at least %s argument(s).",
-                                       buff));
+    char buff[STR_INT_BUFF_SIZE];
+    sprintf(buff, "%d", min);
+    VM_SET_ERROR(vm,
+                 stringFormat(vm, "Expected at least %s argument(s).", buff));
     return false;
 
   } else if (argc > max) {
-    char buff[STR_INT_BUFF_SIZE]; sprintf(buff, "%d", max);
-    VM_SET_ERROR(vm, stringFormat(vm, "Expected at most %s argument(s).",
-                                       buff));
+    char buff[STR_INT_BUFF_SIZE];
+    sprintf(buff, "%d", max);
+    VM_SET_ERROR(vm,
+                 stringFormat(vm, "Expected at most %s argument(s).", buff));
     return false;
   }
 
@@ -251,9 +252,10 @@ bool pkGetArgValue(PKVM* vm, int arg, PkVarType type, PkVar* value) {
 
   Var val = ARG(arg);
   if (pkGetValueType((PkVar)&val) != type) {
-    char buff[STR_INT_BUFF_SIZE]; sprintf(buff, "%d", arg);
+    char buff[STR_INT_BUFF_SIZE];
+    sprintf(buff, "%d", arg);
     VM_SET_ERROR(vm, stringFormat(vm, "Expected a $ at argument $.",
-                 getPkVarTypeName(type), buff));
+                                  getPkVarTypeName(type), buff));
     return false;
   }
 
@@ -262,19 +264,13 @@ bool pkGetArgValue(PKVM* vm, int arg, PkVarType type, PkVar* value) {
 }
 
 // pkReturnNull implementation (see pocketlang.h for description).
-void pkReturnNull(PKVM* vm) {
-  RET(VAR_NULL);
-}
+void pkReturnNull(PKVM* vm) { RET(VAR_NULL); }
 
 // pkReturnBool implementation (see pocketlang.h for description).
-void pkReturnBool(PKVM* vm, bool value) {
-  RET(VAR_BOOL(value));
-}
+void pkReturnBool(PKVM* vm, bool value) { RET(VAR_BOOL(value)); }
 
 // pkReturnNumber implementation (see pocketlang.h for description).
-void pkReturnNumber(PKVM* vm, double value) {
-  RET(VAR_NUM(value));
-}
+void pkReturnNumber(PKVM* vm, double value) { RET(VAR_NUM(value)); }
 
 // pkReturnString implementation (see pocketlang.h for description).
 void pkReturnString(PKVM* vm, const char* value) {
@@ -287,14 +283,10 @@ void pkReturnStringLength(PKVM* vm, const char* value, size_t length) {
 }
 
 // pkReturnValue implementation (see pocketlang.h for description).
-void pkReturnValue(PKVM* vm, PkVar value) {
-  RET(*(Var*)value);
-}
+void pkReturnValue(PKVM* vm, PkVar value) { RET(*(Var*)value); }
 
 // pkReturnHandle implementation (see pocketlang.h for description).
-void pkReturnHandle(PKVM* vm, PkHandle* handle) {
-  RET(handle->value);
-}
+void pkReturnHandle(PKVM* vm, PkHandle* handle) { RET(handle->value); }
 
 // pkReturnInstNative implementation (see pocketlang.h for description).
 void pkReturnInstNative(PKVM* vm, void* data, uint32_t id) {
@@ -350,7 +342,7 @@ static inline bool isInteger(Var var, int64_t* value) {
     // TODO: check if the number is larger for a 64 bit integer.
     if (floor(number) == number) {
       ASSERT(INT64_MIN <= number && number <= INT64_MAX,
-        "TODO: Large numbers haven't handled yet. Please report!");
+             "TODO: Large numbers haven't handled yet. Please report!");
       *value = (int64_t)(number);
       return true;
     }
@@ -392,18 +384,20 @@ static inline bool validateIndex(PKVM* vm, int64_t index, uint32_t size,
     Var var = ARG(arg);                                                      \
     ASSERT(arg > 0 && arg <= ARGC, OOPS);                                    \
     if (!IS_OBJ(var) || AS_OBJ(var)->type != m_type) {                       \
-      char buff[12]; sprintf(buff, "%d", arg);                               \
-      VM_SET_ERROR(vm, stringFormat(vm, "Expected a " m_name                 \
-                   " at argument $.", buff, false));                         \
+      char buff[12];                                                         \
+      sprintf(buff, "%d", arg);                                              \
+      VM_SET_ERROR(                                                          \
+          vm, stringFormat(vm, "Expected a " m_name " at argument $.", buff, \
+                           false));                                          \
     }                                                                        \
     *value = (m_class*)AS_OBJ(var);                                          \
     return true;                                                             \
-   }
- VALIDATE_ARG_OBJ(String, OBJ_STRING, "string")
- VALIDATE_ARG_OBJ(List, OBJ_LIST, "list")
- VALIDATE_ARG_OBJ(Map, OBJ_MAP, "map")
- VALIDATE_ARG_OBJ(Function, OBJ_FUNC, "function")
- VALIDATE_ARG_OBJ(Fiber, OBJ_FIBER, "fiber")
+  }
+VALIDATE_ARG_OBJ(String, OBJ_STRING, "string")
+VALIDATE_ARG_OBJ(List, OBJ_LIST, "list")
+VALIDATE_ARG_OBJ(Map, OBJ_MAP, "map")
+VALIDATE_ARG_OBJ(Function, OBJ_FUNC, "function")
+VALIDATE_ARG_OBJ(Fiber, OBJ_FIBER, "fiber")
 
 /*****************************************************************************/
 /* SHARED FUNCTIONS                                                          */
@@ -411,14 +405,14 @@ static inline bool validateIndex(PKVM* vm, int64_t index, uint32_t size,
 
 // findBuiltinFunction implementation (see core.h for description).
 int findBuiltinFunction(const PKVM* vm, const char* name, uint32_t length) {
-   for (uint32_t i = 0; i < vm->builtins_count; i++) {
-     if (length == vm->builtins[i].length &&
-       strncmp(name, vm->builtins[i].name, length) == 0) {
-       return i;
-     }
-   }
-   return -1;
- }
+  for (uint32_t i = 0; i < vm->builtins_count; i++) {
+    if (length == vm->builtins[i].length &&
+        strncmp(name, vm->builtins[i].name, length) == 0) {
+      return i;
+    }
+  }
+  return -1;
+}
 
 // getBuiltinFunction implementation (see core.h for description).
 Function* getBuiltinFunction(const PKVM* vm, int index) {
@@ -445,16 +439,14 @@ Script* getCoreLib(const PKVM* vm, String* name) {
 /*****************************************************************************/
 
 DEF(coreTypeName,
-  "type_name(value:var) -> string\n"
-  "Returns the type name of the of the value.") {
-
+    "type_name(value:var) -> string\n"
+    "Returns the type name of the of the value.") {
   RET(VAR_OBJ(newString(vm, varTypeName(ARG(1)))));
 }
 
 DEF(coreHelp,
-  "help([fn]) -> null\n"
-  "This will write an error message to stdout and return null.") {
-
+    "help([fn]) -> null\n"
+    "This will write an error message to stdout and return null.") {
   int argc = ARGC;
   if (argc != 0 && argc != 1) {
     RET_ERR(newString(vm, "Invalid argument count."));
@@ -485,10 +477,9 @@ DEF(coreHelp,
 }
 
 DEF(coreAssert,
-  "assert(condition:bool [, msg:string]) -> void\n"
-  "If the condition is false it'll terminate the current fiber with the "
-  "optional error message") {
-
+    "assert(condition:bool [, msg:string]) -> void\n"
+    "If the condition is false it'll terminate the current fiber with the "
+    "optional error message") {
   int argc = ARGC;
   if (argc != 1 && argc != 2) {
     RET_ERR(newString(vm, "Invalid argument count."));
@@ -513,9 +504,8 @@ DEF(coreAssert,
 }
 
 DEF(coreBin,
-  "bin(value:num) -> string\n"
-  "Returns as a binary value string with '0x' prefix.") {
-
+    "bin(value:num) -> string\n"
+    "Returns as a binary value string with '0x' prefix.") {
   int64_t value;
   if (!validateInteger(vm, ARG(1), &value, "Argument 1")) return;
 
@@ -525,7 +515,7 @@ DEF(coreBin,
   if (negative) value = -value;
 
   char* ptr = buff + STR_BIN_BUFF_SIZE - 1;
-  *ptr-- = '\0'; // NULL byte at the end of the string.
+  *ptr-- = '\0';  // NULL byte at the end of the string.
 
   if (value != 0) {
     while (value > 0) {
@@ -536,7 +526,8 @@ DEF(coreBin,
     *ptr-- = '0';
   }
 
-  *ptr-- = 'b'; *ptr-- = '0';
+  *ptr-- = 'b';
+  *ptr-- = '0';
   if (negative) *ptr-- = '-';
 
   uint32_t length = (uint32_t)((buff + STR_BIN_BUFF_SIZE - 1) - (ptr + 1));
@@ -544,9 +535,8 @@ DEF(coreBin,
 }
 
 DEF(coreHex,
-  "hex(value:num) -> string\n"
-  "Returns as a hexadecimal value string with '0x' prefix.") {
-
+    "hex(value:num) -> string\n"
+    "Returns as a hexadecimal value string with '0x' prefix.") {
   int64_t value;
   if (!validateInteger(vm, ARG(1), &value, "Argument 1")) return;
 
@@ -554,7 +544,8 @@ DEF(coreHex,
 
   char* ptr = buff;
   if (value < 0) *ptr++ = '-';
-  *ptr++ = '0'; *ptr++ = 'x';
+  *ptr++ = '0';
+  *ptr++ = 'x';
 
   if (value > UINT32_MAX || value < -(int64_t)(UINT32_MAX)) {
     VM_SET_ERROR(vm, newString(vm, "Integer is too large."));
@@ -566,19 +557,19 @@ DEF(coreHex,
   uint32_t _x = (uint32_t)((value < 0) ? -value : value);
   int length = sprintf(ptr, "%x", _x);
 
-  RET(VAR_OBJ(newStringLength(vm, buff,
-    (uint32_t)((ptr + length) - (char*)(buff)))));
+  RET(VAR_OBJ(
+      newStringLength(vm, buff, (uint32_t)((ptr + length) - (char*)(buff)))));
 }
 
 DEF(coreYield,
-  "yield([value]) -> var\n"
-  "Return the current function with the yield [value] to current running "
-  "fiber. If the fiber is resumed, it'll run from the next statement of the "
-  "yield() call. If the fiber resumed with with a value, the return value of "
-  "the yield() would be that value otherwise null.") {
-
+    "yield([value]) -> var\n"
+    "Return the current function with the yield [value] to current running "
+    "fiber. If the fiber is resumed, it'll run from the next statement of the "
+    "yield() call. If the fiber resumed with with a value, the return value "
+    "of "
+    "the yield() would be that value otherwise null.") {
   int argc = ARGC;
-  if (argc > 1) { // yield() or yield(val).
+  if (argc > 1) {  // yield() or yield(val).
     RET_ERR(newString(vm, "Invalid argument count."));
   }
 
@@ -586,17 +577,15 @@ DEF(coreYield,
 }
 
 DEF(coreToString,
-  "to_string(value:var) -> string\n"
-  "Returns the string representation of the value.") {
-
+    "to_string(value:var) -> string\n"
+    "Returns the string representation of the value.") {
   RET(VAR_OBJ(toString(vm, ARG(1))));
 }
 
 DEF(corePrint,
-  "print(...) -> void\n"
-  "Write each argument as space seperated, to the stdout and ends with a "
-  "newline.") {
-
+    "print(...) -> void\n"
+    "Write each argument as space seperated, to the stdout and ends with a "
+    "newline.") {
   // If the host application doesn't provide any write function, discard the
   // output.
   if (vm->config.write_fn == NULL) return;
@@ -610,10 +599,9 @@ DEF(corePrint,
 }
 
 DEF(coreInput,
-  "input([msg:var]) -> string\n"
-  "Read a line from stdin and returns it without the line ending. Accepting "
-  "an optional argument [msg] and prints it before reading.") {
-
+    "input([msg:var]) -> string\n"
+    "Read a line from stdin and returns it without the line ending. Accepting "
+    "an optional argument [msg] and prints it before reading.") {
   int argc = ARGC;
   if (argc != 1 && argc != 2) {
     RET_ERR(newString(vm, "Invalid argument count."));
@@ -633,12 +621,11 @@ DEF(coreInput,
 }
 
 DEF(coreExit,
-  "exit([value:num]) -> null\n"
-  "Exit the process with an optional exit code provided by the argument "
-  "[value]. The default exit code is would be 0.") {
-
+    "exit([value:num]) -> null\n"
+    "Exit the process with an optional exit code provided by the argument "
+    "[value]. The default exit code is would be 0.") {
   int argc = ARGC;
-  if (argc > 1) { // exit() or exit(val).
+  if (argc > 1) {  // exit() or exit(val).
     RET_ERR(newString(vm, "Invalid argument count."));
   }
 
@@ -655,11 +642,10 @@ DEF(coreExit,
 // -----------------
 
 DEF(coreStrSub,
-  "str_sub(str:string, pos:num, len:num) -> string\n"
-  "Returns a substring from a given string supplied. In addition, "
-  "the position and length of the substring are provided when this "
-  "function is called. For example: `str_sub(str, pos, len)`.") {
-
+    "str_sub(str:string, pos:num, len:num) -> string\n"
+    "Returns a substring from a given string supplied. In addition, "
+    "the position and length of the substring are provided when this "
+    "function is called. For example: `str_sub(str, pos, len)`.") {
   String* str;
   int64_t pos, len;
 
@@ -680,9 +666,8 @@ DEF(coreStrSub,
 }
 
 DEF(coreStrChr,
-  "str_chr(value:num) -> string\n"
-  "Returns the ASCII string value of the integer argument.") {
-
+    "str_chr(value:num) -> string\n"
+    "Returns the ASCII string value of the integer argument.") {
   int64_t num;
   if (!validateInteger(vm, ARG(1), &num, "Argument 1")) return;
 
@@ -695,9 +680,8 @@ DEF(coreStrChr,
 }
 
 DEF(coreStrOrd,
-  "str_ord(value:string) -> num\n"
-  "Returns integer value of the given ASCII character.") {
-
+    "str_ord(value:string) -> num\n"
+    "Returns integer value of the given ASCII character.") {
   String* c;
   if (!validateArgString(vm, 1, &c)) return;
   if (c->length != 1) {
@@ -712,9 +696,8 @@ DEF(coreStrOrd,
 // ---------------
 
 DEF(coreListAppend,
-  "list_append(self:List, value:var) -> List\n"
-  "Append the [value] to the list [self] and return the list.") {
-
+    "list_append(self:List, value:var) -> List\n"
+    "Append the [value] to the list [self] and return the list.") {
   List* list;
   if (!validateArgList(vm, 1, &list)) return;
   Var elem = ARG(2);
@@ -727,10 +710,9 @@ DEF(coreListAppend,
 // --------------
 
 DEF(coreMapRemove,
-  "map_remove(self:map, key:var) -> var\n"
-  "Remove the [key] from the map [self] and return it's value if the key "
-  "exists, otherwise it'll return null.") {
-
+    "map_remove(self:map, key:var) -> var\n"
+    "Remove the [key] from the map [self] and return it's value if the key "
+    "exists, otherwise it'll return null.") {
   Map* map;
   if (!validateArgMap(vm, 1, &map)) return;
   Var key = ARG(2);
@@ -744,7 +726,6 @@ DEF(coreMapRemove,
 
 // Create a module and add it to the vm's core modules, returns the script.
 static Script* newModuleInternal(PKVM* vm, const char* name) {
-
   // Create a new Script for the module.
   String* _name = newString(vm, name);
   vmPushTempRef(vm, &_name->_super);
@@ -752,13 +733,14 @@ static Script* newModuleInternal(PKVM* vm, const char* name) {
   // Check if any module with the same name already exists and assert to the
   // hosting application.
   if (!IS_UNDEF(mapGet(vm->core_libs, VAR_OBJ(_name)))) {
-    vmPopTempRef(vm); // _name
-    __ASSERT(false, stringFormat(vm,
-             "A module named '$' already exists", name)->data);
+    vmPopTempRef(vm);  // _name
+    __ASSERT(
+        false,
+        stringFormat(vm, "A module named '$' already exists", name)->data);
   }
 
   Script* scr = newScript(vm, _name, true);
-  vmPopTempRef(vm); // _name
+  vmPopTempRef(vm);  // _name
 
   // Add the script to core_libs.
   vmPushTempRef(vm, &scr->_super);
@@ -774,21 +756,26 @@ static inline void assertModuleNameDef(PKVM* vm, Script* script,
                                        const char* name) {
   // Check if function with the same name already exists.
   if (scriptGetFunc(script, name, (uint32_t)strlen(name)) != -1) {
-    __ASSERT(false, stringFormat(vm, "A function named '$' already esists "
-      "on module '@'", name, script->module)->data);
+    __ASSERT(false, stringFormat(vm,
+                                 "A function named '$' already esists "
+                                 "on module '@'",
+                                 name, script->module)
+                        ->data);
   }
 
   // Check if a global variable with the same name already exists.
   if (scriptGetGlobals(script, name, (uint32_t)strlen(name)) != -1) {
-    __ASSERT(false, stringFormat(vm, "A global variable named '$' already "
-      "esists on module '@'", name, script->module)->data);
+    __ASSERT(false, stringFormat(vm,
+                                 "A global variable named '$' already "
+                                 "esists on module '@'",
+                                 name, script->module)
+                        ->data);
   }
 }
 
 // The internal function to add global value to a module.
-static void moduleAddGlobalInternal(PKVM* vm, Script* script,
-                                    const char* name, Var value) {
-
+static void moduleAddGlobalInternal(PKVM* vm, Script* script, const char* name,
+                                    Var value) {
   // Ensure the name isn't defined already.
   assertModuleNameDef(vm, script, name);
 
@@ -800,12 +787,11 @@ static void moduleAddGlobalInternal(PKVM* vm, Script* script,
 static void moduleAddFunctionInternal(PKVM* vm, Script* script,
                                       const char* name, pkNativeFn fptr,
                                       int arity, const char* docstring) {
-
   // Ensure the name isn't predefined.
   assertModuleNameDef(vm, script, name);
 
-  Function* fn = newFunction(vm, name, (int)strlen(name),
-                             script, true, docstring);
+  Function* fn =
+      newFunction(vm, name, (int)strlen(name), script, true, docstring);
   fn->native = fptr;
   fn->arity = arity;
 }
@@ -816,16 +802,14 @@ static void moduleAddFunctionInternal(PKVM* vm, Script* script,
 // -----------------------
 
 DEF(stdLangClock,
-  "clock() -> num\n"
-  "Returns the number of seconds since the application started") {
-
+    "clock() -> num\n"
+    "Returns the number of seconds since the application started") {
   RET(VAR_NUM((double)clock() / CLOCKS_PER_SEC));
 }
 
 DEF(stdLangGC,
-  "gc() -> num\n"
-  "Trigger garbage collection and return the amount of bytes cleaned.") {
-
+    "gc() -> num\n"
+    "Trigger garbage collection and return the amount of bytes cleaned.") {
   size_t bytes_before = vm->bytes_allocated;
   vmCollectGarbage(vm);
   size_t garbage = bytes_before - vm->bytes_allocated;
@@ -833,9 +817,8 @@ DEF(stdLangGC,
 }
 
 DEF(stdLangDisas,
-  "disas(fn:Function) -> String\n"
-  "Returns the disassembled opcode of the function [fn].") {
-
+    "disas(fn:Function) -> String\n"
+    "Returns the disassembled opcode of the function [fn].") {
   Function* fn;
   if (!validateArgFunction(vm, 1, &fn)) return;
 
@@ -850,23 +833,21 @@ DEF(stdLangDisas,
 
 #ifdef DEBUG
 DEF(stdLangDebugBreak,
-  "debug_break() -> null\n"
-  "A debug function for development (will be removed).") {
-
+    "debug_break() -> null\n"
+    "A debug function for development (will be removed).") {
   DEBUG_BREAK();
 }
 #endif
 
 DEF(stdLangWrite,
-  "write(...) -> null\n"
-  "Write function, just like print function but it wont put space between"
-  "args and write a new line at the end.") {
-
+    "write(...) -> null\n"
+    "Write function, just like print function but it wont put space between"
+    "args and write a new line at the end.") {
   // If the host application doesn't provide any write function, discard the
   // output.
   if (vm->config.write_fn == NULL) return;
 
-  String* str; //< Will be cleaned by garbage collector;
+  String* str;  //< Will be cleaned by garbage collector;
 
   for (int i = 1; i <= ARGC; i++) {
     Var arg = ARG(i);
@@ -884,64 +865,54 @@ DEF(stdLangWrite,
 // 'math' library methods.
 // -----------------------
 
-DEF(stdMathFloor,
-  "floor(value:num) -> num\n") {
-
+DEF(stdMathFloor, "floor(value:num) -> num\n") {
   double num;
   if (!validateNumeric(vm, ARG(1), &num, "Argument 1")) return;
   RET(VAR_NUM(floor(num)));
 }
 
-DEF(stdMathCeil,
-  "ceil(value:num) -> num\n") {
-
+DEF(stdMathCeil, "ceil(value:num) -> num\n") {
   double num;
   if (!validateNumeric(vm, ARG(1), &num, "Argument 1")) return;
   RET(VAR_NUM(ceil(num)));
 }
 
-DEF(stdMathPow,
-  "pow(value:num) -> num\n") {
-
+DEF(stdMathPow, "pow(value:num) -> num\n") {
   double num, ex;
   if (!validateNumeric(vm, ARG(1), &num, "Argument 1")) return;
   if (!validateNumeric(vm, ARG(2), &ex, "Argument 2")) return;
   RET(VAR_NUM(pow(num, ex)));
 }
 
-DEF(stdMathSqrt,
-  "sqrt(value:num) -> num\n") {
-
+DEF(stdMathSqrt, "sqrt(value:num) -> num\n") {
   double num;
   if (!validateNumeric(vm, ARG(1), &num, "Argument 1")) return;
   RET(VAR_NUM(sqrt(num)));
 }
 
-DEF(stdMathAbs,
-  "abs(value:num) -> num\n") {
-
+DEF(stdMathAbs, "abs(value:num) -> num\n") {
   double num;
   if (!validateNumeric(vm, ARG(1), &num, "Argument 1")) return;
   if (num < 0) num = -num;
   RET(VAR_NUM(num));
 }
 
-DEF(stdMathSign,
-  "sign(value:num) -> num\n") {
-
+DEF(stdMathSign, "sign(value:num) -> num\n") {
   double num;
   if (!validateNumeric(vm, ARG(1), &num, "Argument 1")) return;
-  if (num < 0) num = -1;
-  else if (num > 0) num = +1;
-  else num = 0;
+  if (num < 0)
+    num = -1;
+  else if (num > 0)
+    num = +1;
+  else
+    num = 0;
   RET(VAR_NUM(num));
 }
 
 DEF(stdMathHash,
-  "hash(value:var) -> num\n"
-  "Return the hash value of the variable, if it's not hashable it'll "
-  "return null.") {
-
+    "hash(value:var) -> num\n"
+    "Return the hash value of the variable, if it's not hashable it'll "
+    "return null.") {
   if (IS_OBJ(ARG(1))) {
     if (!isObjectHashable(AS_OBJ(ARG(1))->type)) {
       RET(VAR_NULL);
@@ -951,67 +922,62 @@ DEF(stdMathHash,
 }
 
 DEF(stdMathSine,
-  "sin(rad:num) -> num\n"
-  "Return the sine value of the argument [rad] which is an angle expressed "
-  "in radians.") {
-
+    "sin(rad:num) -> num\n"
+    "Return the sine value of the argument [rad] which is an angle expressed "
+    "in radians.") {
   double rad;
   if (!validateNumeric(vm, ARG(1), &rad, "Argument 1")) return;
   RET(VAR_NUM(sin(rad)));
 }
 
 DEF(stdMathCosine,
-  "cos(rad:num) -> num\n"
-  "Return the cosine value of the argument [rad] which is an angle expressed "
-  "in radians.") {
-
+    "cos(rad:num) -> num\n"
+    "Return the cosine value of the argument [rad] which is an angle "
+    "expressed "
+    "in radians.") {
   double rad;
   if (!validateNumeric(vm, ARG(1), &rad, "Argument 1")) return;
   RET(VAR_NUM(cos(rad)));
 }
 
 DEF(stdMathTangent,
-  "tan(rad:num) -> num\n"
-  "Return the tangent value of the argument [rad] which is an angle expressed "
-  "in radians.") {
-
+    "tan(rad:num) -> num\n"
+    "Return the tangent value of the argument [rad] which is an angle "
+    "expressed "
+    "in radians.") {
   double rad;
   if (!validateNumeric(vm, ARG(1), &rad, "Argument 1")) return;
   RET(VAR_NUM(tan(rad)));
 }
 
 DEF(stdMathSinh,
-  "sinh(val) -> val\n"
-  "Return the hyperbolic sine value of the argument [val].") {
-
+    "sinh(val) -> val\n"
+    "Return the hyperbolic sine value of the argument [val].") {
   double val;
   if (!validateNumeric(vm, ARG(1), &val, "Argument 1")) return;
   RET(VAR_NUM(sinh(val)));
 }
 
 DEF(stdMathCosh,
-  "cosh(val) -> val\n"
-  "Return the hyperbolic cosine value of the argument [val].") {
-
+    "cosh(val) -> val\n"
+    "Return the hyperbolic cosine value of the argument [val].") {
   double val;
   if (!validateNumeric(vm, ARG(1), &val, "Argument 1")) return;
   RET(VAR_NUM(cosh(val)));
 }
 
 DEF(stdMathTanh,
-  "tanh(val) -> val\n"
-  "Return the hyperbolic tangent value of the argument [val].") {
-
+    "tanh(val) -> val\n"
+    "Return the hyperbolic tangent value of the argument [val].") {
   double val;
   if (!validateNumeric(vm, ARG(1), &val, "Argument 1")) return;
   RET(VAR_NUM(tanh(val)));
 }
 
 DEF(stdMathArcSine,
-  "asin(num) -> num\n"
-  "Return the arcsine value of the argument [num] which is an angle "
-  "expressed in radians.") {
-
+    "asin(num) -> num\n"
+    "Return the arcsine value of the argument [num] which is an angle "
+    "expressed in radians.") {
   double num;
   if (!validateNumeric(vm, ARG(1), &num, "Argument 1")) return;
 
@@ -1023,10 +989,9 @@ DEF(stdMathArcSine,
 }
 
 DEF(stdMathArcCosine,
-  "acos(num) -> num\n"
-  "Return the arc cosine value of the argument [num] which is "
-  "an angle expressed in radians.") {
-
+    "acos(num) -> num\n"
+    "Return the arc cosine value of the argument [num] which is "
+    "an angle expressed in radians.") {
   double num;
   if (!validateNumeric(vm, ARG(1), &num, "Argument 1")) return;
 
@@ -1038,28 +1003,25 @@ DEF(stdMathArcCosine,
 }
 
 DEF(stdMathArcTangent,
-  "atan(num) -> num\n"
-  "Return the arc tangent value of the argument [num] which is "
-  "an angle expressed in radians.") {
-
+    "atan(num) -> num\n"
+    "Return the arc tangent value of the argument [num] which is "
+    "an angle expressed in radians.") {
   double num;
   if (!validateNumeric(vm, ARG(1), &num, "Argument 1")) return;
   RET(VAR_NUM(atan(num)));
 }
 
 DEF(stdMathLog10,
-  "log10(value:num) -> num\n"
-  "Return the logarithm to base 10 of argument [value]") {
-
+    "log10(value:num) -> num\n"
+    "Return the logarithm to base 10 of argument [value]") {
   double num;
   if (!validateNumeric(vm, ARG(1), &num, "Argument 1")) return;
   RET(VAR_NUM(log10(num)));
 }
 
 DEF(stdMathRound,
-  "round(value:num) -> num\n"
-  "Round to nearest integer, away from zero and return the number.") {
-
+    "round(value:num) -> num\n"
+    "Round to nearest integer, away from zero and return the number.") {
   double num;
   if (!validateNumeric(vm, ARG(1), &num, "Argument 1")) return;
   RET(VAR_NUM(round(num)));
@@ -1069,21 +1031,19 @@ DEF(stdMathRound,
 // -----------------------
 
 DEF(stdFiberNew,
-  "new(fn:Function) -> fiber\n"
-  "Create and return a new fiber from the given function [fn].") {
-
+    "new(fn:Function) -> fiber\n"
+    "Create and return a new fiber from the given function [fn].") {
   Function* fn;
   if (!validateArgFunction(vm, 1, &fn)) return;
   RET(VAR_OBJ(newFiber(vm, fn)));
 }
 
 DEF(stdFiberRun,
-  "run(fb:Fiber, ...) -> var\n"
-  "Runs the fiber's function with the provided arguments and returns it's "
-  "return value or the yielded value if it's yielded.") {
-
+    "run(fb:Fiber, ...) -> var\n"
+    "Runs the fiber's function with the provided arguments and returns it's "
+    "return value or the yielded value if it's yielded.") {
   int argc = ARGC;
-  if (argc == 0) // Missing the fiber argument.
+  if (argc == 0)  // Missing the fiber argument.
     RET_ERR(newString(vm, "Missing argument - fiber."));
 
   Fiber* fb;
@@ -1105,14 +1065,13 @@ DEF(stdFiberRun,
 }
 
 DEF(stdFiberResume,
-  "fiber_resume(fb:Fiber) -> var\n"
-  "Resumes a yielded function from a previous call of fiber_run() function. "
-  "Return it's return value or the yielded value if it's yielded.") {
-
+    "fiber_resume(fb:Fiber) -> var\n"
+    "Resumes a yielded function from a previous call of fiber_run() function. "
+    "Return it's return value or the yielded value if it's yielded.") {
   int argc = ARGC;
-  if (argc == 0) // Missing the fiber argument.
+  if (argc == 0)  // Missing the fiber argument.
     RET_ERR(newString(vm, "Expected at least 1 argument(s)."));
-  if (argc > 2) // Can only accept 1 argument for resume.
+  if (argc > 2)  // Can only accept 1 argument for resume.
     RET_ERR(newString(vm, "Expected at most 2 argument(s)."));
 
   Fiber* fb;
@@ -1143,7 +1102,6 @@ static void initializeBuiltinFN(PKVM* vm, BuiltinFn* bfn, const char* name,
 }
 
 void initializeCore(PKVM* vm) {
-
 #define INITIALIZE_BUILTIN_FN(name, fn, argc)                        \
   initializeBuiltinFN(vm, &vm->builtins[vm->builtins_count++], name, \
                       (int)strlen(name), argc, fn, DOCSTRING(fn));
@@ -1152,64 +1110,64 @@ void initializeCore(PKVM* vm) {
   moduleAddFunctionInternal(vm, module, name, fn, argc, DOCSTRING(fn))
 
   // Initialize builtin functions.
-  INITIALIZE_BUILTIN_FN("type_name",   coreTypeName,   1);
+  INITIALIZE_BUILTIN_FN("type_name", coreTypeName, 1);
 
   // TODO: Add is keyword with modules for builtin types.
   // ex: val is Num; val is null; val is List; val is Range
   //     List.append(l, e) # List is implicitly imported core module.
   //     String.lower(s)
 
-  INITIALIZE_BUILTIN_FN("help",        coreHelp,      -1);
-  INITIALIZE_BUILTIN_FN("assert",      coreAssert,    -1);
-  INITIALIZE_BUILTIN_FN("bin",         coreBin,        1);
-  INITIALIZE_BUILTIN_FN("hex",         coreHex,        1);
-  INITIALIZE_BUILTIN_FN("yield",       coreYield,     -1);
-  INITIALIZE_BUILTIN_FN("to_string",   coreToString,   1);
-  INITIALIZE_BUILTIN_FN("print",       corePrint,     -1);
-  INITIALIZE_BUILTIN_FN("input",       coreInput,     -1);
-  INITIALIZE_BUILTIN_FN("exit",        coreExit,      -1);
+  INITIALIZE_BUILTIN_FN("help", coreHelp, -1);
+  INITIALIZE_BUILTIN_FN("assert", coreAssert, -1);
+  INITIALIZE_BUILTIN_FN("bin", coreBin, 1);
+  INITIALIZE_BUILTIN_FN("hex", coreHex, 1);
+  INITIALIZE_BUILTIN_FN("yield", coreYield, -1);
+  INITIALIZE_BUILTIN_FN("to_string", coreToString, 1);
+  INITIALIZE_BUILTIN_FN("print", corePrint, -1);
+  INITIALIZE_BUILTIN_FN("input", coreInput, -1);
+  INITIALIZE_BUILTIN_FN("exit", coreExit, -1);
 
   // String functions.
-  INITIALIZE_BUILTIN_FN("str_sub",     coreStrSub,     3);
-  INITIALIZE_BUILTIN_FN("str_chr",     coreStrChr,     1);
-  INITIALIZE_BUILTIN_FN("str_ord",     coreStrOrd,     1);
+  INITIALIZE_BUILTIN_FN("str_sub", coreStrSub, 3);
+  INITIALIZE_BUILTIN_FN("str_chr", coreStrChr, 1);
+  INITIALIZE_BUILTIN_FN("str_ord", coreStrOrd, 1);
 
   // List functions.
   INITIALIZE_BUILTIN_FN("list_append", coreListAppend, 2);
 
   // Map functions.
-  INITIALIZE_BUILTIN_FN("map_remove",  coreMapRemove,  2);
+  INITIALIZE_BUILTIN_FN("map_remove", coreMapRemove, 2);
 
   // Core Modules /////////////////////////////////////////////////////////////
 
   Script* lang = newModuleInternal(vm, "lang");
-  MODULE_ADD_FN(lang, "clock", stdLangClock,  0);
-  MODULE_ADD_FN(lang, "gc",    stdLangGC,     0);
-  MODULE_ADD_FN(lang, "disas", stdLangDisas,  1);
+  MODULE_ADD_FN(lang, "clock", stdLangClock, 0);
+  MODULE_ADD_FN(lang, "gc", stdLangGC, 0);
+  MODULE_ADD_FN(lang, "disas", stdLangDisas, 1);
   MODULE_ADD_FN(lang, "write", stdLangWrite, -1);
 #ifdef DEBUG
   MODULE_ADD_FN(lang, "debug_break", stdLangDebugBreak, 0);
 #endif
 
   Script* math = newModuleInternal(vm, "math");
-  MODULE_ADD_FN(math, "floor", stdMathFloor,       1);
-  MODULE_ADD_FN(math, "ceil",  stdMathCeil,        1);
-  MODULE_ADD_FN(math, "pow",   stdMathPow,         2);
-  MODULE_ADD_FN(math, "sqrt",  stdMathSqrt,        1);
-  MODULE_ADD_FN(math, "abs",   stdMathAbs,         1);
-  MODULE_ADD_FN(math, "sign",  stdMathSign,        1);
-  MODULE_ADD_FN(math, "hash",  stdMathHash,        1);
-  MODULE_ADD_FN(math, "sin",   stdMathSine,        1);
-  MODULE_ADD_FN(math, "cos",   stdMathCosine,      1);
-  MODULE_ADD_FN(math, "tan",   stdMathTangent,     1);
-  MODULE_ADD_FN(math, "sinh",  stdMathSinh,        1);
-  MODULE_ADD_FN(math, "cosh",  stdMathCosh,        1);
-  MODULE_ADD_FN(math, "tanh",  stdMathTanh,        1);
-  MODULE_ADD_FN(math, "asin",  stdMathArcSine,     1);
-  MODULE_ADD_FN(math, "acos",  stdMathArcCosine,   1);
-  MODULE_ADD_FN(math, "atan",  stdMathArcTangent,  1);
-  MODULE_ADD_FN(math, "log10", stdMathLog10,       1);
-  MODULE_ADD_FN(math, "round", stdMathRound,       1);
+  MODULE_ADD_FN(math, "floor", stdMathFloor, 1);
+  MODULE_ADD_FN(math, "ceil", stdMathCeil, 1);
+  MODULE_ADD_FN(math, "pow", stdMathPow, 2);
+  MODULE_ADD_FN(math, "sqrt", stdMathSqrt, 1);
+  MODULE_ADD_FN(math, "abs", stdMathAbs, 1);
+  MODULE_ADD_FN(math, "sign", stdMathSign, 1);
+  MODULE_ADD_FN(math, "hash", stdMathHash, 1);
+  MODULE_ADD_FN(math, "sin", stdMathSine, 1);
+  MODULE_ADD_FN(math, "cos", stdMathCosine, 1);
+  MODULE_ADD_FN(math, "tan", stdMathTangent, 1);
+  MODULE_ADD_FN(math, "sinh", stdMathSinh, 1);
+  MODULE_ADD_FN(math, "cosh", stdMathCosh, 1);
+  MODULE_ADD_FN(math, "tanh", stdMathTanh, 1);
+  MODULE_ADD_FN(math, "asin", stdMathArcSine, 1);
+  MODULE_ADD_FN(math, "acos", stdMathArcCosine, 1);
+  MODULE_ADD_FN(math, "atan", stdMathArcTangent, 1);
+  MODULE_ADD_FN(math, "log10", stdMathLog10, 1);
+  MODULE_ADD_FN(math, "round", stdMathRound, 1);
 
   // Note that currently it's mutable (since it's a global variable, not
   // constant and pocketlang doesn't support constant) so the user shouldn't
@@ -1219,19 +1177,20 @@ void initializeCore(PKVM* vm) {
   moduleAddGlobalInternal(vm, math, "PI", VAR_NUM(M_PI));
 
   Script* fiber = newModuleInternal(vm, "Fiber");
-  MODULE_ADD_FN(fiber, "new",      stdFiberNew,     1);
-  MODULE_ADD_FN(fiber, "run",      stdFiberRun,    -1);
-  MODULE_ADD_FN(fiber, "resume",   stdFiberResume, -1);
-
+  MODULE_ADD_FN(fiber, "new", stdFiberNew, 1);
+  MODULE_ADD_FN(fiber, "run", stdFiberRun, -1);
+  MODULE_ADD_FN(fiber, "resume", stdFiberResume, -1);
 }
 
 /*****************************************************************************/
 /* OPERATORS                                                                 */
 /*****************************************************************************/
 
-#define UNSUPPORTED_OPERAND_TYPES(op)                                  \
-  VM_SET_ERROR(vm, stringFormat(vm, "Unsupported operand types for "   \
-    "operator '" op "' $ and $", varTypeName(v1), varTypeName(v2)))
+#define UNSUPPORTED_OPERAND_TYPES(op)                            \
+  VM_SET_ERROR(vm, stringFormat(vm,                              \
+                                "Unsupported operand types for " \
+                                "operator '" op "' $ and $",     \
+                                varTypeName(v1), varTypeName(v2)))
 
 #define RIGHT_OPERAND "Right operand"
 
@@ -1248,16 +1207,13 @@ Var varAdd(PKVM* vm, Var v1, Var v2) {
   if (IS_OBJ(v1) && IS_OBJ(v2)) {
     Object *o1 = AS_OBJ(v1), *o2 = AS_OBJ(v2);
     switch (o1->type) {
-
-      case OBJ_STRING:
-      {
+      case OBJ_STRING: {
         if (o2->type == OBJ_STRING) {
           return VAR_OBJ(stringJoin(vm, (String*)o1, (String*)o2));
         }
       } break;
 
-      case OBJ_LIST:
-      {
+      case OBJ_LIST: {
         if (o2->type == OBJ_LIST) {
           return VAR_OBJ(listJoin(vm, (List*)o1, (List*)o2));
         }
@@ -1331,8 +1287,8 @@ Var varModulo(PKVM* vm, Var v1, Var v2) {
   }
 
   if (IS_OBJ_TYPE(v1, OBJ_STRING)) {
-    //const String* str = (const String*)AS_OBJ(v1);
-    TODO; // "fmt" % v2.
+    // const String* str = (const String*)AS_OBJ(v1);
+    TODO;  // "fmt" % v2.
   }
 
   UNSUPPORTED_OPERAND_TYPES("%");
@@ -1442,8 +1398,8 @@ bool varLesser(Var v1, Var v2) {
 
 bool varContains(PKVM* vm, Var elem, Var container) {
   if (!IS_OBJ(container)) {
-    VM_SET_ERROR(vm, stringFormat(vm, "'$' is not iterable.",
-                 varTypeName(container)));
+    VM_SET_ERROR(
+        vm, stringFormat(vm, "'$' is not iterable.", varTypeName(container)));
   }
   Object* obj = AS_OBJ(container);
 
@@ -1497,20 +1453,17 @@ bool varContains(PKVM* vm, Var elem, Var container) {
                                 varTypeName(on), attrib->data))
 
 Var varGetAttrib(PKVM* vm, Var on, String* attrib) {
-
   if (!IS_OBJ(on)) {
-    VM_SET_ERROR(vm, stringFormat(vm, "$ type is not subscriptable.",
-                                  varTypeName(on)));
+    VM_SET_ERROR(
+        vm, stringFormat(vm, "$ type is not subscriptable.", varTypeName(on)));
     return VAR_NULL;
   }
 
   Object* obj = AS_OBJ(on);
   switch (obj->type) {
-    case OBJ_STRING:
-    {
+    case OBJ_STRING: {
       String* str = (String*)obj;
       switch (attrib->hash) {
-
         case CHECK_HASH("length", 0x83d03615):
           return VAR_NUM((double)(str->length));
 
@@ -1531,11 +1484,9 @@ Var varGetAttrib(PKVM* vm, Var on, String* attrib) {
       UNREACHABLE();
     }
 
-    case OBJ_LIST:
-    {
+    case OBJ_LIST: {
       List* list = (List*)obj;
       switch (attrib->hash) {
-
         case CHECK_HASH("length", 0x83d03615):
           return VAR_NUM((double)(list->elements.count));
 
@@ -1547,8 +1498,7 @@ Var varGetAttrib(PKVM* vm, Var on, String* attrib) {
       UNREACHABLE();
     }
 
-    case OBJ_MAP:
-    {
+    case OBJ_MAP: {
       // Not sure should I allow string values could be accessed with
       // this way. ex:
       // map = { "foo" : 42, "can't access" : 32 }
@@ -1557,17 +1507,16 @@ Var varGetAttrib(PKVM* vm, Var on, String* attrib) {
       UNREACHABLE();
     }
 
-    case OBJ_RANGE:
-    {
+    case OBJ_RANGE: {
       Range* range = (Range*)obj;
       switch (attrib->hash) {
-
         case CHECK_HASH("as_list", 0x1562c22):
           return VAR_OBJ(rangeAsList(vm, range));
 
-        // We can't use 'start', 'end' since 'end' in pocketlang is a
-        // keyword. Also we can't use 'from', 'to' since 'from' is a keyword
-        // too. So, we're using 'first' and 'last' to access the range limits.
+          // We can't use 'start', 'end' since 'end' in pocketlang is a
+          // keyword. Also we can't use 'from', 'to' since 'from' is a keyword
+          // too. So, we're using 'first' and 'last' to access the range
+          // limits.
 
         case CHECK_HASH("first", 0x4881d841):
           return VAR_NUM(range->from);
@@ -1583,8 +1532,7 @@ Var varGetAttrib(PKVM* vm, Var on, String* attrib) {
       UNREACHABLE();
     }
 
-    case OBJ_SCRIPT:
-    {
+    case OBJ_SCRIPT: {
       Script* scr = (Script*)obj;
 
       // Search in types.
@@ -1612,11 +1560,9 @@ Var varGetAttrib(PKVM* vm, Var on, String* attrib) {
       return VAR_NULL;
     }
 
-    case OBJ_FUNC:
-    {
+    case OBJ_FUNC: {
       Function* fn = (Function*)obj;
       switch (attrib->hash) {
-
         case CHECK_HASH("arity", 0x3e96bd7a):
           return VAR_NUM((double)(fn->arity));
 
@@ -1630,30 +1576,27 @@ Var varGetAttrib(PKVM* vm, Var on, String* attrib) {
       UNREACHABLE();
     }
 
-    case OBJ_FIBER:
-      {
-        Fiber* fb = (Fiber*)obj;
-        switch (attrib->hash) {
+    case OBJ_FIBER: {
+      Fiber* fb = (Fiber*)obj;
+      switch (attrib->hash) {
+        case CHECK_HASH("is_done", 0x789c2706):
+          return VAR_BOOL(fb->state == FIBER_DONE);
 
-          case CHECK_HASH("is_done", 0x789c2706):
-            return VAR_BOOL(fb->state == FIBER_DONE);
+        case CHECK_HASH("function", 0x9ed64249):
+          return VAR_OBJ(fb->func);
 
-          case CHECK_HASH("function", 0x9ed64249):
-            return VAR_OBJ(fb->func);
-
-          default:
-            ERR_NO_ATTRIB(vm, on, attrib);
-            return VAR_NULL;
-          }
-        UNREACHABLE();
+        default:
+          ERR_NO_ATTRIB(vm, on, attrib);
+          return VAR_NULL;
       }
+      UNREACHABLE();
+    }
 
     case OBJ_CLASS:
       TODO;
       UNREACHABLE();
 
-    case OBJ_INST:
-    {
+    case OBJ_INST: {
       Var value;
       if (!instGetAttrib(vm, (Instance*)obj, attrib, &value)) {
         ERR_NO_ATTRIB(vm, on, attrib);
@@ -1670,18 +1613,19 @@ Var varGetAttrib(PKVM* vm, Var on, String* attrib) {
 }
 
 void varSetAttrib(PKVM* vm, Var on, String* attrib, Var value) {
-
-#define ATTRIB_IMMUTABLE(name)                                                \
-do {                                                                          \
-  if ((attrib->length == strlen(name) && strcmp(name, attrib->data) == 0)) {  \
-    VM_SET_ERROR(vm, stringFormat(vm, "'$' attribute is immutable.", name));  \
-    return;                                                                   \
-  }                                                                           \
-} while (false)
+#define ATTRIB_IMMUTABLE(name)                                             \
+  do {                                                                     \
+    if ((attrib->length == strlen(name) &&                                 \
+         strcmp(name, attrib->data) == 0)) {                               \
+      VM_SET_ERROR(vm,                                                     \
+                   stringFormat(vm, "'$' attribute is immutable.", name)); \
+      return;                                                              \
+    }                                                                      \
+  } while (false)
 
   if (!IS_OBJ(on)) {
-    VM_SET_ERROR(vm, stringFormat(vm, "$ type is not subscriptable.",
-                                  varTypeName(on)));
+    VM_SET_ERROR(
+        vm, stringFormat(vm, "$ type is not subscriptable.", varTypeName(on)));
     return;
   }
 
@@ -1763,8 +1707,7 @@ do {                                                                          \
       ERR_NO_ATTRIB(vm, on, attrib);
       return;
 
-    case OBJ_INST:
-    {
+    case OBJ_INST: {
       if (!instSetAttrib(vm, (Instance*)obj, attrib, value)) {
         // If we has error by now, that means the set value type is
         // incompatible. No need for us to set an other error, just return.
@@ -1789,15 +1732,14 @@ do {                                                                          \
 
 Var varGetSubscript(PKVM* vm, Var on, Var key) {
   if (!IS_OBJ(on)) {
-    VM_SET_ERROR(vm, stringFormat(vm, "$ type is not subscriptable.",
-                                  varTypeName(on)));
+    VM_SET_ERROR(
+        vm, stringFormat(vm, "$ type is not subscriptable.", varTypeName(on)));
     return VAR_NULL;
   }
 
   Object* obj = AS_OBJ(on);
   switch (obj->type) {
-    case OBJ_STRING:
-    {
+    case OBJ_STRING: {
       int64_t index;
       String* str = ((String*)obj);
       if (!validateInteger(vm, key, &index, "List index")) {
@@ -1810,8 +1752,7 @@ Var varGetSubscript(PKVM* vm, Var on, Var key) {
       return VAR_OBJ(c);
     }
 
-    case OBJ_LIST:
-    {
+    case OBJ_LIST: {
       int64_t index;
       pkVarBuffer* elems = &((List*)obj)->elements;
       if (!validateInteger(vm, key, &index, "List index")) {
@@ -1823,11 +1764,9 @@ Var varGetSubscript(PKVM* vm, Var on, Var key) {
       return elems->data[index];
     }
 
-    case OBJ_MAP:
-    {
+    case OBJ_MAP: {
       Var value = mapGet((Map*)obj, key);
       if (IS_UNDEF(value)) {
-
         String* key_str = toString(vm, key);
         vmPushTempRef(vm, &key_str->_super);
         if (IS_OBJ(key) && !isObjectHashable(AS_OBJ(key)->type)) {
@@ -1859,8 +1798,8 @@ Var varGetSubscript(PKVM* vm, Var on, Var key) {
 
 void varsetSubscript(PKVM* vm, Var on, Var key, Var value) {
   if (!IS_OBJ(on)) {
-    VM_SET_ERROR(vm, stringFormat(vm, "$ type is not subscriptable.",
-                                  varTypeName(on)));
+    VM_SET_ERROR(
+        vm, stringFormat(vm, "$ type is not subscriptable.", varTypeName(on)));
     return;
   }
 
@@ -1870,8 +1809,7 @@ void varsetSubscript(PKVM* vm, Var on, Var key, Var value) {
       VM_SET_ERROR(vm, newString(vm, "String objects are immutable."));
       return;
 
-    case OBJ_LIST:
-    {
+    case OBJ_LIST: {
       int64_t index;
       pkVarBuffer* elems = &((List*)obj)->elements;
       if (!validateInteger(vm, key, &index, "List index")) return;
@@ -1880,11 +1818,10 @@ void varsetSubscript(PKVM* vm, Var on, Var key, Var value) {
       return;
     }
 
-    case OBJ_MAP:
-    {
+    case OBJ_MAP: {
       if (IS_OBJ(key) && !isObjectHashable(AS_OBJ(key)->type)) {
-        VM_SET_ERROR(vm, stringFormat(vm, "$ type is not hashable.",
-                                      varTypeName(key)));
+        VM_SET_ERROR(
+            vm, stringFormat(vm, "$ type is not hashable.", varTypeName(key)));
       } else {
         mapSet(vm, (Map*)obj, key, value);
       }

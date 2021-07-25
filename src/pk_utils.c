@@ -24,9 +24,7 @@ bool utilIsName(char c) {
 }
 
 // Function implementation, see utils.h for description.
-bool utilIsDigit(char c) {
-  return ('0' <= c && c <= '9');
-}
+bool utilIsDigit(char c) { return ('0' <= c && c <= '9'); }
 
 // A union to reinterpret a double as raw bits and back.
 typedef union {
@@ -93,7 +91,7 @@ uint32_t utilHashString(const char* string) {
  * UTF8                                                                     *
  ****************************************************************************/
 
- // Function implementation, see utils.h for description.
+// Function implementation, see utils.h for description.
 int utf8_encodeBytesCount(int value) {
   if (value <= 0x7f) return 1;
   if (value <= 0x7ff) return 2;
@@ -106,9 +104,8 @@ int utf8_encodeBytesCount(int value) {
 
 // Function implementation, see utils.h for description.
 int utf8_decodeBytesCount(uint8_t byte) {
-
   if ((byte >> 7) == 0b0) return 1;
-  if ((byte >> 6) == 0b10) return 1; //< continuation byte
+  if ((byte >> 6) == 0b10) return 1;  //< continuation byte
   if ((byte >> 5) == 0b110) return 2;
   if ((byte >> 4) == 0b1110) return 3;
   if ((byte >> 3) == 0b11110) return 4;
@@ -119,7 +116,6 @@ int utf8_decodeBytesCount(uint8_t byte) {
 
 // Function implementation, see utils.h for description.
 int utf8_encodeValue(int value, uint8_t* bytes) {
-
   if (value <= 0x7f) {
     *bytes = value & 0x7f;
     return 1;
@@ -138,7 +134,7 @@ int utf8_encodeValue(int value, uint8_t* bytes) {
   if (value <= 0xffff) {
     *(bytes++) = (uint8_t)(0b11100000 | ((value & 0b1111000000000000) >> 12));
     *(bytes++) = (uint8_t)(0b10000000 | ((value & 0b111111000000) >> 6));
-    *(bytes) =   (uint8_t)(0b10000000 | ((value & 0b111111)));
+    *(bytes) = (uint8_t)(0b10000000 | ((value & 0b111111)));
     return 3;
   }
 
@@ -146,10 +142,10 @@ int utf8_encodeValue(int value, uint8_t* bytes) {
   // to 4th byte, next 6 bits to 3rd byte, next 6 bits to 2nd byte, 3 bits
   // first byte.
   if (value <= 0x10ffff) {
-    *(bytes++) = (uint8_t)(0b11110000 | ((value & (0b111    << 18)) >> 18));
+    *(bytes++) = (uint8_t)(0b11110000 | ((value & (0b111 << 18)) >> 18));
     *(bytes++) = (uint8_t)(0b10000000 | ((value & (0b111111 << 12)) >> 12));
-    *(bytes++) = (uint8_t)(0b10000000 | ((value & (0b111111 << 6))  >> 6));
-    *(bytes)   = (uint8_t)(0b10000000 | ((value &  0b111111)));
+    *(bytes++) = (uint8_t)(0b10000000 | ((value & (0b111111 << 6)) >> 6));
+    *(bytes) = (uint8_t)(0b10000000 | ((value & 0b111111)));
     return 4;
   }
 
@@ -158,7 +154,6 @@ int utf8_encodeValue(int value, uint8_t* bytes) {
 
 // Function implementation, see utils.h for description.
 int utf8_decodeBytes(uint8_t* bytes, int* value) {
-
   int continue_bytes = 0;
   int byte_count = 1;
   int _value = 0;

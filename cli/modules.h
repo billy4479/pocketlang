@@ -22,13 +22,13 @@ typedef struct {
 // File access mode.
 typedef enum {
 
-  FMODE_READ       = (1 << 0),
-  FMODE_WRITE      = (1 << 1),
-  FMODE_APPEND     = (1 << 2),
+  FMODE_READ = (1 << 0),
+  FMODE_WRITE = (1 << 1),
+  FMODE_APPEND = (1 << 2),
 
-  _FMODE_EXT       = (1 << 3),
-  FMODE_READ_EXT   = (_FMODE_EXT | FMODE_READ),
-  FMODE_WRITE_EXT  = (_FMODE_EXT | FMODE_WRITE),
+  _FMODE_EXT = (1 << 3),
+  FMODE_READ_EXT = (_FMODE_EXT | FMODE_READ),
+  FMODE_WRITE_EXT = (_FMODE_EXT | FMODE_WRITE),
   FMODE_APPEND_EXT = (_FMODE_EXT | FMODE_APPEND),
 } FileAccessMode;
 
@@ -45,9 +45,9 @@ typedef enum {
 typedef struct {
   Obj _super;
 
-  FILE* fp;            // C file poinnter.
-  FileAccessMode mode; // Access mode of the file.
-  bool closed;         // True if the file isn't closed yet.
+  FILE* fp;             // C file poinnter.
+  FileAccessMode mode;  // Access mode of the file.
+  bool closed;          // True if the file isn't closed yet.
 } File;
 
 /*****************************************************************************/

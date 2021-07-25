@@ -18,13 +18,10 @@ void errorPrint(PKVM* vm, PkErrorType type, const char* file, int line,
   js_errorPrint((int)type, line, message);
 }
 
-void writeFunction(PKVM* vm, const char* text) {
-  js_writeFunction(text);
-}
+void writeFunction(PKVM* vm, const char* text) { js_writeFunction(text); }
 
 EMSCRIPTEN_KEEPALIVE
 int runSource(const char* source) {
-
   PkConfiguration config = pkNewConfiguration();
   config.error_fn = errorPrint;
   config.write_fn = writeFunction;
@@ -33,8 +30,8 @@ int runSource(const char* source) {
 
   PKVM* vm = pkNewVM(&config);
 
-  PkStringPtr src = { source, NULL, NULL };
-  PkStringPtr module = { "$(TRY)", NULL, NULL };
+  PkStringPtr src = {source, NULL, NULL};
+  PkStringPtr module = {"$(TRY)", NULL, NULL};
   PkResult result = pkInterpretSource(vm, src, module, NULL);
 
   pkFreeVM(vm);

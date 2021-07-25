@@ -30,21 +30,21 @@ Script* getCoreLib(const PKVM* vm, String* name);
 /* OPERATORS                                                                 */
 /*****************************************************************************/
 
-Var varAdd(PKVM* vm, Var v1, Var v2);         // Returns v1 + v2.
-Var varSubtract(PKVM* vm, Var v1, Var v2);    // Returns v1 - v2.
-Var varMultiply(PKVM* vm, Var v1, Var v2);    // Returns v1 * v2.
-Var varDivide(PKVM* vm, Var v1, Var v2);      // Returns v1 / v2.
-Var varModulo(PKVM* vm, Var v1, Var v2);      // Returns v1 % v2.
+Var varAdd(PKVM* vm, Var v1, Var v2);       // Returns v1 + v2.
+Var varSubtract(PKVM* vm, Var v1, Var v2);  // Returns v1 - v2.
+Var varMultiply(PKVM* vm, Var v1, Var v2);  // Returns v1 * v2.
+Var varDivide(PKVM* vm, Var v1, Var v2);    // Returns v1 / v2.
+Var varModulo(PKVM* vm, Var v1, Var v2);    // Returns v1 % v2.
 
-Var varBitAnd(PKVM* vm, Var v1, Var v2);      // Returns v1 & v2.
-Var varBitOr(PKVM* vm, Var v1, Var v2);       // Returns v1 | v2.
-Var varBitXor(PKVM* vm, Var v1, Var v2);      // Returns v1 ^ v2.
-Var varBitLshift(PKVM* vm, Var v1, Var v2);   // Returns v1 << v2.
-Var varBitRshift(PKVM* vm, Var v1, Var v2);   // Returns v1 >> v2.
-Var varBitNot(PKVM* vm, Var v);               // Returns ~v.
+Var varBitAnd(PKVM* vm, Var v1, Var v2);     // Returns v1 & v2.
+Var varBitOr(PKVM* vm, Var v1, Var v2);      // Returns v1 | v2.
+Var varBitXor(PKVM* vm, Var v1, Var v2);     // Returns v1 ^ v2.
+Var varBitLshift(PKVM* vm, Var v1, Var v2);  // Returns v1 << v2.
+Var varBitRshift(PKVM* vm, Var v1, Var v2);  // Returns v1 >> v2.
+Var varBitNot(PKVM* vm, Var v);              // Returns ~v.
 
-bool varGreater(Var v1, Var v2); // Returns v1 > v2.
-bool varLesser(Var v1, Var v2);  // Returns v1 < v2.
+bool varGreater(Var v1, Var v2);  // Returns v1 > v2.
+bool varLesser(Var v1, Var v2);   // Returns v1 < v2.
 
 // Returns elem in container.
 bool varContains(PKVM* vm, Var elem, Var container);
@@ -62,4 +62,4 @@ Var varGetSubscript(PKVM* vm, Var on, Var key);
 // Set subscript [value] with the [key] (ie. on[key] = value).
 void varsetSubscript(PKVM* vm, Var on, Var key, Var value);
 
-#endif // CORE_H
+#endif  // CORE_H

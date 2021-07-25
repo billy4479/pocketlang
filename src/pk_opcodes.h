@@ -118,7 +118,7 @@ OPCODE(IMPORT, 2, 1)
 // done the stack top should be stored otherwise it'll be disregarded. The
 // function should set the 0 th argment to return value.
 // params: 1 byte argc.
-OPCODE(CALL, 1, -0) //< Stack size will calculated at compile time.
+OPCODE(CALL, 1, -0)  //< Stack size will calculated at compile time.
 
 // Moves the [n] arguments and the function at the stack top to the current
 // frame's base for the tail call (the caller's frame it taken by the callee)
@@ -130,7 +130,7 @@ OPCODE(CALL, 1, -0) //< Stack size will calculated at compile time.
 // place once the function is called (rbp). So we're jumping from a deep nested
 // calls to the initial caller directly once the function is done.
 // params: 1 byte argc.
-OPCODE(TAIL_CALL, 1, -0) //< Stack size will calculated at compile time.
+OPCODE(TAIL_CALL, 1, -0)  //< Stack size will calculated at compile time.
 
 // Starts the iteration and test the sequence if it's iterable, before the
 // iteration instead of checking it everytime.
@@ -186,9 +186,9 @@ OPCODE(GET_SUBSCRIPT_KEEP, 0, 1)
 OPCODE(SET_SUBSCRIPT, 0, -2)
 
 // Pop unary operand and push value.
-OPCODE(NEGATIVE, 0, 0) //< Negative number value.
-OPCODE(NOT, 0, 0)      //< boolean not.
-OPCODE(BIT_NOT, 0, 0)  //< bitwise not.
+OPCODE(NEGATIVE, 0, 0)  //< Negative number value.
+OPCODE(NOT, 0, 0)       //< boolean not.
+OPCODE(BIT_NOT, 0, 0)   //< bitwise not.
 
 // Pop binary operands and push value.
 OPCODE(ADD, 0, -1)
@@ -210,7 +210,7 @@ OPCODE(LTEQ, 0, -1)
 OPCODE(GT, 0, -1)
 OPCODE(GTEQ, 0, -1)
 
-OPCODE(RANGE, 0, -1) //< Pop 2 integer make range push.
+OPCODE(RANGE, 0, -1)  //< Pop 2 integer make range push.
 OPCODE(IN, 0, -1)
 
 // Print the repr string of the value at the stack top, used in REPL mode.

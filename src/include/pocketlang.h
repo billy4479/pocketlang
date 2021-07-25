@@ -29,7 +29,7 @@ extern "C" {
 // String representation of the version.
 #define PK_VERSION_STRING "0.1.0"
 
-// Pocketlang visibility macros. define PK_DLL for using pocketlang as a 
+// Pocketlang visibility macros. define PK_DLL for using pocketlang as a
 // shared library and define PK_COMPILE to export symbols when compiling the
 // pocketlang it self as a shared library.
 
@@ -37,7 +37,7 @@ extern "C" {
   #define _PK_EXPORT __declspec(dllexport)
   #define _PK_IMPORT __declspec(dllimport)
 #elif defined(__GNUC__)
-  #define _PK_EXPORT __attribute__((visibility ("default")))
+  #define _PK_EXPORT __attribute__((visibility("default")))
   #define _PK_IMPORT
 #else
   #define _PK_EXPORT
@@ -100,15 +100,15 @@ typedef struct PkCompileOptions PkCompileOptions;
 // Type of the error message that pocketlang will provide with the pkErrorFn
 // callback.
 typedef enum {
-  PK_ERROR_COMPILE = 0, // Compile time errors.
-  PK_ERROR_RUNTIME,     // Runtime error message.
-  PK_ERROR_STACKTRACE,  // One entry of a runtime error stack.
+  PK_ERROR_COMPILE = 0,  // Compile time errors.
+  PK_ERROR_RUNTIME,      // Runtime error message.
+  PK_ERROR_STACKTRACE,   // One entry of a runtime error stack.
 } PkErrorType;
 
 // Result that pocketlang will return after a compilation or running a script
 // or a function or evaluating an expression.
 typedef enum {
-  PK_RESULT_SUCCESS = 0,    // Successfully finished the execution.
+  PK_RESULT_SUCCESS = 0,  // Successfully finished the execution.
 
   // Unexpected EOF while compiling the source. This is another compile time
   // error that will ONLY be returned if we're compiling with the REPL mode set
@@ -144,60 +144,59 @@ typedef void* (*pkReallocFn)(void* memory, size_t new_size, void* user_data);
 // Error callback function pointer. For runtime error it'll call first with
 // PK_ERROR_RUNTIME followed by multiple callbacks with PK_ERROR_STACKTRACE.
 // The error messages should be written to stderr.
-typedef void (*pkErrorFn) (PKVM* vm, PkErrorType type,
-                           const char* file, int line,
-                           const char* message);
+typedef void (*pkErrorFn)(PKVM* vm, PkErrorType type, const char* file,
+                          int line, const char* message);
 
 // A function callback to write [text] to stdout.
-typedef void (*pkWriteFn) (PKVM* vm, const char* text);
+typedef void (*pkWriteFn)(PKVM* vm, const char* text);
 
 // A function callback to read a line from stdin. The returned string shouldn't
 // contain a line ending (\n or \r\n).
-typedef PkStringPtr (*pkReadFn) (PKVM* vm);
+typedef PkStringPtr (*pkReadFn)(PKVM* vm);
 
 // A function callback, that'll be called when a native instance (wrapper) is
 // freed by by the garbage collector, to indicate that pocketlang is done with
 // the native instance.
-typedef void (*pkInstFreeFn) (PKVM* vm, void* instance, uint32_t id);
+typedef void (*pkInstFreeFn)(PKVM* vm, void* instance, uint32_t id);
 
 // A function callback to get the name of the native instance from pocketlang,
 // using it's [id]. The returned string won't be copied by pocketlang so it's
 // expected to be alived since the instance is alive and recomended to return
 // a C literal string.
-typedef const char* (*pkInstNameFn) (uint32_t id);
+typedef const char* (*pkInstNameFn)(uint32_t id);
 
 // A get arribute callback, called by pocket VM when trying to get an attribute
 // from a native type. to return the value of the attribute use 'pkReturn...()'
 // functions. DON'T set an error to the VM if the attribute not exists. Example
 // if the '.as_string' attribute doesn't exists, pocket VM will use a default
 // to string value.
-typedef void (*pkInstGetAttribFn) (PKVM* vm, void* instance, uint32_t id,
-                                   PkStringPtr attrib);
+typedef void (*pkInstGetAttribFn)(PKVM* vm, void* instance, uint32_t id,
+                                  PkStringPtr attrib);
 
 // Use pkGetArg...(vm, 0, ptr) function to get the value of the attribute
 // and use 0 as the argument index, using any other arg index value cause UB.
-// 
+//
 // If the attribute dones't exists DON'T set an error, instead return false.
 // Pocket VM will handle it, On success update the native instance and return
 // true. And DON'T ever use 'pkReturn...()' in the attribute setter It's is a
 // void return function.
-typedef bool (*pkInstSetAttribFn) (PKVM* vm, void* instance, uint32_t id,
-                                   PkStringPtr attrib);
+typedef bool (*pkInstSetAttribFn)(PKVM* vm, void* instance, uint32_t id,
+                                  PkStringPtr attrib);
 
 // A function callback symbol for clean/free the pkStringResult.
-typedef void (*pkResultDoneFn) (PKVM* vm, PkStringPtr result);
+typedef void (*pkResultDoneFn)(PKVM* vm, PkStringPtr result);
 
 // A function callback to resolve the import script name from the [from] path
 // to an absolute (or relative to the cwd). This is required to solve same
 // script imported with different relative path. Set the string attribute to
 // NULL to indicate if it's failed to resolve.
-typedef PkStringPtr (*pkResolvePathFn) (PKVM* vm, const char* from,
-                                        const char* path);
+typedef PkStringPtr (*pkResolvePathFn)(PKVM* vm, const char* from,
+                                       const char* path);
 
 // Load and return the script. Called by the compiler to fetch initial source
 // code and source for import statements. Set the string attribute to NULL
 // to indicate if it's failed to load the script.
-typedef PkStringPtr (*pkLoadScriptFn) (PKVM* vm, const char* path);
+typedef PkStringPtr (*pkLoadScriptFn)(PKVM* vm, const char* path);
 
 /*****************************************************************************/
 /* POCKETLANG PUBLIC API                                                     */
@@ -240,14 +239,14 @@ PK_PUBLIC PkVar pkGetHandleValue(const PkHandle* handle);
 PK_PUBLIC void pkReleaseHandle(PKVM* vm, PkHandle* handle);
 
 // Add a global [value] to the given module.
-PK_PUBLIC void pkModuleAddGlobal(PKVM* vm, PkHandle* module,
-                                 const char* name, PkHandle* value);
+PK_PUBLIC void pkModuleAddGlobal(PKVM* vm, PkHandle* module, const char* name,
+                                 PkHandle* value);
 
 // Add a native function to the given module. If [arity] is -1 that means
 // The function has variadic parameters and use pkGetArgc() to get the argc.
 PK_PUBLIC void pkModuleAddFunction(PKVM* vm, PkHandle* module,
-                                   const char* name,
-                                   pkNativeFn fptr, int arity);
+                                   const char* name, pkNativeFn fptr,
+                                   int arity);
 
 // Returns the function from the [module] as a handle, if not found it'll
 // return NULL.
@@ -264,8 +263,7 @@ PK_PUBLIC PkResult pkCompileModule(PKVM* vm, PkHandle* module,
 // and path 'on_done' will be called to clean the string if it's not NULL.
 // Set the compiler options with the the [options] argument or it can be set to
 // NULL for default options.
-PK_PUBLIC PkResult pkInterpretSource(PKVM* vm,
-                                     PkStringPtr source,
+PK_PUBLIC PkResult pkInterpretSource(PKVM* vm, PkStringPtr source,
                                      PkStringPtr path,
                                      const PkCompileOptions* options);
 
@@ -274,8 +272,8 @@ PK_PUBLIC PkResult pkInterpretSource(PKVM* vm,
 // result (success or failure) if you need the yielded or returned value use
 // the pkFiberGetReturnValue() function, and use pkFiberIsDone() function to
 // check if the fiber can be resumed with pkFiberResume() function.
-PK_PUBLIC PkResult pkRunFiber(PKVM* vm, PkHandle* fiber,
-                              int argc, PkHandle** argv);
+PK_PUBLIC PkResult pkRunFiber(PKVM* vm, PkHandle* fiber, int argc,
+                              PkHandle** argv);
 
 // Resume a yielded fiber with an optional [value]. (could be set to NULL)
 // It'll returns it's run status result (success or failure) if you need the
@@ -290,9 +288,9 @@ PK_PUBLIC PkResult pkResumeFiber(PKVM* vm, PkHandle* fiber, PkVar value);
 // pocket VM. With a on_done() callback to clean it when the pocket VM is done
 // with the string.
 struct PkStringPtr {
-  const char* string;     //< The string result.
-  pkResultDoneFn on_done; //< Called once vm done with the string.
-  void* user_data;        //< User related data.
+  const char* string;      //< The string result.
+  pkResultDoneFn on_done;  //< Called once vm done with the string.
+  void* user_data;         //< User related data.
 
   // These values are provided by the pocket VM to the host application, you're
   // not expected to set this when provideing string to the pocket VM.
@@ -301,7 +299,6 @@ struct PkStringPtr {
 };
 
 struct PkConfiguration {
-
   // The callback used to allocate, reallocate, and free. If the function
   // pointer is NULL it defaults to the VM's realloc(), free() wrappers.
   pkReallocFn realloc_fn;
@@ -325,7 +322,6 @@ struct PkConfiguration {
 // The options to configure the compilation provided by the command line
 // arguments (or other ways the host application provides).
 struct PkCompileOptions {
-
   // Compile debug version of the source.
   bool debug;
 
@@ -334,7 +330,6 @@ struct PkCompileOptions {
   // [expression] should also be true otherwise it's incompatible, (will fail
   // an assertion).
   bool repl_mode;
-
 };
 
 /*****************************************************************************/
@@ -345,7 +340,7 @@ struct PkCompileOptions {
 PK_PUBLIC void pkSetRuntimeError(PKVM* vm, const char* message);
 
 // TODO: Set a runtime error to VM, with the formated string.
-//PK_PUBLIC void pkSetRuntimeErrorFmt(PKVM* vm, const char* fmt, ...);
+// PK_PUBLIC void pkSetRuntimeErrorFmt(PKVM* vm, const char* fmt, ...);
 
 // Return the type of the [value] this will help to get the type of the
 // variable that was extracted from pkGetArg() earlier.
@@ -370,14 +365,14 @@ PK_PUBLIC PkVar pkGetArg(const PKVM* vm, int arg);
 // stack as a type. They will first validate the argument's type and set a
 // runtime error if it's not and return false. Otherwise it'll set the [value]
 // with the extracted value.
-// 
+//
 // NOTE: The arguments are 1 based (to get the first argument use 1 not 0).
 //       Only use arg index 0 to get the value of attribute setter call.
 
 PK_PUBLIC bool pkGetArgBool(PKVM* vm, int arg, bool* value);
 PK_PUBLIC bool pkGetArgNumber(PKVM* vm, int arg, double* value);
-PK_PUBLIC bool pkGetArgString(PKVM* vm, int arg,
-                              const char** value, uint32_t* length);
+PK_PUBLIC bool pkGetArgString(PKVM* vm, int arg, const char** value,
+                              uint32_t* length);
 PK_PUBLIC bool pkGetArgInst(PKVM* vm, int arg, uint32_t id, void** value);
 PK_PUBLIC bool pkGetArgValue(PKVM* vm, int arg, PkVarType type, PkVar* value);
 
@@ -437,12 +432,12 @@ PK_PUBLIC PkHandle* pkNewInstNative(PKVM* vm, void* data, uint32_t id);
 // in that buffer, this will prevent us from invoking an allocation call for
 // each time we want to pass a primitive type.
 
-//PK_PUBLIC PkVar pkPushNull(PKVM* vm);
-//PK_PUBLIC PkVar pkPushBool(PKVM* vm, bool value);
-//PK_PUBLIC PkVar pkPushNumber(PKVM* vm, double value);
+// PK_PUBLIC PkVar pkPushNull(PKVM* vm);
+// PK_PUBLIC PkVar pkPushBool(PKVM* vm, bool value);
+// PK_PUBLIC PkVar pkPushNumber(PKVM* vm, double value);
 
 #ifdef __cplusplus
-} // extern "C"
+}  // extern "C"
 #endif
 
-#endif // POCKETLANG_H
+#endif  // POCKETLANG_H

@@ -5,7 +5,6 @@
 
 #include "internal.h"
 #include "modules.h"
-
 #include "thirdparty/argparse/argparse.h"
 
 // FIXME: Everything below here is temporary and for testing.
@@ -23,28 +22,27 @@ void onResultDone(PKVM* vm, PkStringPtr result) {
 
 void errorFunction(PKVM* vm, PkErrorType type, const char* file, int line,
                    const char* message) {
-
   VmUserData* ud = (VmUserData*)pkGetUserData(vm);
   bool repl = (ud) ? ud->repl_mode : false;
 
   if (type == PK_ERROR_COMPILE) {
-
-    if (repl) fprintf(stderr, "Error: %s\n", message);
-    else fprintf(stderr, "Error: %s\n       at \"%s\":%i\n",
-                 message, file, line);
+    if (repl)
+      fprintf(stderr, "Error: %s\n", message);
+    else
+      fprintf(stderr, "Error: %s\n       at \"%s\":%i\n", message, file, line);
 
   } else if (type == PK_ERROR_RUNTIME) {
     fprintf(stderr, "Error: %s\n", message);
 
   } else if (type == PK_ERROR_STACKTRACE) {
-    if (repl) fprintf(stderr, "  %s() [line:%i]\n", message, line);
-    else fprintf(stderr, "  %s() [\"%s\":%i]\n", message, file, line);
+    if (repl)
+      fprintf(stderr, "  %s() [line:%i]\n", message, line);
+    else
+      fprintf(stderr, "  %s() [\"%s\":%i]\n", message, file, line);
   }
 }
 
-void writeFunction(PKVM* vm, const char* text) {
-  fprintf(stdout, "%s", text);
-}
+void writeFunction(PKVM* vm, const char* text) { fprintf(stdout, "%s", text); }
 
 PkStringPtr readFunction(PKVM* vm) {
   PkStringPtr result;
@@ -91,7 +89,6 @@ PkStringPtr resolvePath(PKVM* vm, const char* from, const char* path) {
 }
 
 PkStringPtr loadScript(PKVM* vm, const char* path) {
-
   PkStringPtr result;
   result.on_done = onResultDone;
 
@@ -141,32 +138,32 @@ static PKVM* intializePocketVM() {
 }
 
 int main(int argc, const char** argv) {
-
   // Parse command line arguments.
 
   const char* usage[] = {
-    "pocket ... [-c cmd | file] ...",
-    NULL,
+      "pocket ... [-c cmd | file] ...",
+      NULL,
   };
 
   const char* cmd = NULL;
   int debug = false, help = false, quiet = false, version = false;
   struct argparse_option cli_opts[] = {
       OPT_STRING('c', "cmd", (void*)&cmd,
-        "Evaluate and run the passed string.", NULL, 0, 0),
+                 "Evaluate and run the passed string.", NULL, 0, 0),
 
       OPT_BOOLEAN('d', "debug", (void*)&debug,
-        "Compile and run the debug version.", NULL, 0, 0),
+                  "Compile and run the debug version.", NULL, 0, 0),
 
-      OPT_BOOLEAN('h', "help",  (void*)&help,
-        "Prints this help message and exit.", NULL, 0, 0),
+      OPT_BOOLEAN('h', "help", (void*)&help,
+                  "Prints this help message and exit.", NULL, 0, 0),
 
-      OPT_BOOLEAN('q', "quiet", (void*)&quiet,
-        "Don't print version and copyright statement on REPL startup.",
-        NULL, 0, 0),
+      OPT_BOOLEAN(
+          'q', "quiet", (void*)&quiet,
+          "Don't print version and copyright statement on REPL startup.", NULL,
+          0, 0),
 
       OPT_BOOLEAN('v', "version", &version,
-        "Prints the pocketlang version and exit.", NULL, 0, 0),
+                  "Prints the pocketlang version and exit.", NULL, 0, 0),
       OPT_END(),
   };
 
@@ -175,12 +172,12 @@ int main(int argc, const char** argv) {
   argparse_init(&argparse, cli_opts, usage, 0);
   argc = argparse_parse(&argparse, argc, argv);
 
-  if (help) { // pocket --help.
+  if (help) {  // pocket --help.
     argparse_usage(&argparse);
     return 0;
   }
 
-  if (version) { // pocket --version
+  if (version) {  // pocket --version
     fprintf(stdout, "pocketlang %s\n", PK_VERSION_STRING);
     return 0;
   }
@@ -198,16 +195,16 @@ int main(int argc, const char** argv) {
   PkCompileOptions options = pkNewCompilerOptions();
   options.debug = debug;
 
-  if (cmd != NULL) { // pocket -c "print('foo')"
+  if (cmd != NULL) {  // pocket -c "print('foo')"
 
-    PkStringPtr source = { cmd, NULL, NULL, 0, 0 };
-    PkStringPtr path = { "$(Source)", NULL, NULL, 0, 0 };
+    PkStringPtr source = {cmd, NULL, NULL, 0, 0};
+    PkStringPtr path = {"$(Source)", NULL, NULL, 0, 0};
     PkResult result = pkInterpretSource(vm, source, path, NULL);
     exitcode = (int)result;
 
-  } else if (argc == 0) { // Run on REPL mode.
+  } else if (argc == 0) {  // Run on REPL mode.
 
-   // Print the copyright and license notice, if --quiet not set.
+    // Print the copyright and license notice, if --quiet not set.
     if (!quiet) {
       printf("%s", CLI_NOTICE);
     }
@@ -215,7 +212,7 @@ int main(int argc, const char** argv) {
     options.repl_mode = true;
     exitcode = repl(vm, &options);
 
-  } else { // pocket file.pk ...
+  } else {  // pocket file.pk ...
 
     PkStringPtr resolved = resolvePath(vm, ".", argv[0]);
     PkStringPtr source = loadScript(vm, resolved.string);

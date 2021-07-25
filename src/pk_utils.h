@@ -9,7 +9,8 @@
 #include "pk_internal.h"
 
 // Returns the smallest power of two that is equal to or greater than [n].
-// Source : https://github.com/wren-lang/wren/blob/main/src/vm/wren_utils.h#L119
+// Source :
+// https://github.com/wren-lang/wren/blob/main/src/vm/wren_utils.h#L119
 int utilPowerOf2Ceil(int n);
 
 // Returns true if `c` is [A-Za-z_].
@@ -33,7 +34,7 @@ uint32_t utilHashNumber(double num);
 // Generate a has code for [string].
 uint32_t utilHashString(const char* string);
 
-#endif // UTILS_H
+#endif  // UTILS_H
 
 /****************************************************************************
  * UTF8                                                                     *
@@ -79,7 +80,7 @@ uint32_t utilHashString(const char* string);
  *     // define implementation only a single *.c source file like this
  *     #define UTF8_IMPLEMENT
  *     #include "utf8.h"
-*/
+ */
 
 #include <stdint.h>
 
@@ -120,4 +121,4 @@ int utf8_encodeValue(int value, uint8_t* bytes);
 // value.
 int utf8_decodeBytes(uint8_t* bytes, int* value);
 
-#endif // UTF8_H
+#endif  // UTF8_H

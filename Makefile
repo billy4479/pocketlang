@@ -30,7 +30,7 @@ RELEASE_DIR     = $(BUILD_DIR)/release
 RELEASE_TARGET  = $(RELEASE_DIR)/$(TARGET_EXEC)
 RELEASE_OBJS   := $(addprefix $(RELEASE_DIR)/, $(OBJS))
 
-.PHONY: debug release all clean
+.PHONY: debug release all clean format
 
 # default; target if run as `make`
 debug: $(DEBUG_TARGET)
@@ -55,5 +55,8 @@ all: debug release
 
 clean:
 	rm -rf $(BUILD_DIR)
+
+format:
+	 clang-format -i --style=file **/*.c **/*.h
 
 -include $(DEPS)

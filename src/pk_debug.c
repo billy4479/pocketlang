@@ -6,15 +6,16 @@
 #include "pk_debug.h"
 
 #include <stdio.h>
+
 #include "pk_core.h"
 #include "pk_var.h"
 #include "pk_vm.h"
 
 // Opcode names array.
 static const char* op_names[] = {
-  #define OPCODE(name, params, stack) #name,
-  #include "pk_opcodes.h"
-  #undef OPCODE
+#define OPCODE(name, params, stack) #name,
+#include "pk_opcodes.h"
+#undef OPCODE
 };
 
 // Instead of writing foo("a long string", strlen("a long string") or
@@ -30,18 +31,19 @@ void dumpValue(PKVM* vm, Var value, pkByteBuffer* buff) {
 }
 
 void dumpFunctionCode(PKVM* vm, Function* func, pkByteBuffer* buff) {
-
 #define INDENTATION "  "
 #define ADD_CHAR(vm, buff, c) pkByteBufferWrite(buff, vm, c)
 #define INT_WIDTH 5
-#define ADD_INTEGER(vm, buff, value, width)                          \
-  do {                                                               \
-    char sbuff[STR_INT_BUFF_SIZE];                                   \
-    int length;                                                      \
-    if ((width) > 0) length = sprintf(sbuff, "%*d", (width), value); \
-    else length = sprintf(sbuff, "%d", value);                       \
-    pkByteBufferAddString(buff, vm, sbuff, (uint32_t)length);        \
-  } while(false)
+#define ADD_INTEGER(vm, buff, value, width)                   \
+  do {                                                        \
+    char sbuff[STR_INT_BUFF_SIZE];                            \
+    int length;                                               \
+    if ((width) > 0)                                          \
+      length = sprintf(sbuff, "%*d", (width), value);         \
+    else                                                      \
+      length = sprintf(sbuff, "%d", value);                   \
+    pkByteBufferAddString(buff, vm, sbuff, (uint32_t)length); \
+  } while (false)
 
   uint32_t i = 0;
   uint8_t* opcodes = func->fn->opcodes.data;
@@ -57,7 +59,7 @@ void dumpFunctionCode(PKVM* vm, Function* func, pkByteBuffer* buff) {
   pkByteBufferAddString(buff, vm, STR_AND_LEN("\"\n"));
 
 #define READ_BYTE() (opcodes[i++])
-#define READ_SHORT() (i += 2, opcodes[i - 2] << 8 | opcodes[i-1])
+#define READ_SHORT() (i += 2, opcodes[i - 2] << 8 | opcodes[i - 1])
 
 #define NO_ARGS() ADD_CHAR(vm, buff, '\n')
 #define BYTE_ARG()                                 \
@@ -96,14 +98,13 @@ void dumpFunctionCode(PKVM* vm, Function* func, pkByteBuffer* buff) {
     const char* op_name = op_names[opcodes[i]];
     uint32_t op_length = (uint32_t)strlen(op_name);
     pkByteBufferAddString(buff, vm, op_name, op_length);
-    for (uint32_t j = 0; j < 16 - op_length; j++) { // Padding.
+    for (uint32_t j = 0; j < 16 - op_length; j++) {  // Padding.
       ADD_CHAR(vm, buff, ' ');
     }
 
     Opcode op = (Opcode)func->fn->opcodes.data[i++];
     switch (op) {
-      case OP_PUSH_CONSTANT:
-      {
+      case OP_PUSH_CONSTANT: {
         int index = READ_SHORT();
         ASSERT_INDEX((uint32_t)index, func->owner->literals.count);
         Var value = func->owner->literals.data[index];
@@ -124,9 +125,10 @@ void dumpFunctionCode(PKVM* vm, Function* func, pkByteBuffer* buff) {
         NO_ARGS();
         break;
 
-      case OP_PUSH_LIST:     SHORT_ARG(); break;
-      case OP_PUSH_INSTANCE:
-      {
+      case OP_PUSH_LIST:
+        SHORT_ARG();
+        break;
+      case OP_PUSH_INSTANCE: {
         int ty_index = READ_BYTE();
         ASSERT_INDEX((uint32_t)ty_index, func->owner->classes.count);
         uint32_t name_ind = func->owner->classes.data[ty_index]->name;
@@ -140,10 +142,18 @@ void dumpFunctionCode(PKVM* vm, Function* func, pkByteBuffer* buff) {
         pkByteBufferAddString(buff, vm, STR_AND_LEN("]\n"));
         break;
       }
-      case OP_PUSH_MAP:      NO_ARGS();   break;
-      case OP_LIST_APPEND:   NO_ARGS();   break;
-      case OP_MAP_INSERT:    NO_ARGS();   break;
-      case OP_INST_APPEND:   NO_ARGS();   break;
+      case OP_PUSH_MAP:
+        NO_ARGS();
+        break;
+      case OP_LIST_APPEND:
+        NO_ARGS();
+        break;
+      case OP_MAP_INSERT:
+        NO_ARGS();
+        break;
+      case OP_INST_APPEND:
+        NO_ARGS();
+        break;
 
       case OP_PUSH_LOCAL_0:
       case OP_PUSH_LOCAL_1:
@@ -154,9 +164,7 @@ void dumpFunctionCode(PKVM* vm, Function* func, pkByteBuffer* buff) {
       case OP_PUSH_LOCAL_6:
       case OP_PUSH_LOCAL_7:
       case OP_PUSH_LOCAL_8:
-      case OP_PUSH_LOCAL_N:
-      {
-
+      case OP_PUSH_LOCAL_N: {
         int arg;
         if (op == OP_PUSH_LOCAL_N) {
           arg = READ_BYTE();
@@ -188,8 +196,7 @@ void dumpFunctionCode(PKVM* vm, Function* func, pkByteBuffer* buff) {
       case OP_STORE_LOCAL_6:
       case OP_STORE_LOCAL_7:
       case OP_STORE_LOCAL_8:
-      case OP_STORE_LOCAL_N:
-      {
+      case OP_STORE_LOCAL_N: {
         int arg;
         if (op == OP_STORE_LOCAL_N) {
           arg = READ_BYTE();
@@ -213,8 +220,7 @@ void dumpFunctionCode(PKVM* vm, Function* func, pkByteBuffer* buff) {
       } break;
 
       case OP_PUSH_GLOBAL:
-      case OP_STORE_GLOBAL:
-      {
+      case OP_STORE_GLOBAL: {
         int index = READ_BYTE();
         int name_index = func->owner->global_names.data[index];
         String* name = func->owner->names.data[name_index];
@@ -227,8 +233,7 @@ void dumpFunctionCode(PKVM* vm, Function* func, pkByteBuffer* buff) {
         break;
       }
 
-      case OP_PUSH_FN:
-      {
+      case OP_PUSH_FN: {
         int fn_index = READ_BYTE();
         const char* name = func->owner->functions.data[fn_index]->name;
 
@@ -240,8 +245,7 @@ void dumpFunctionCode(PKVM* vm, Function* func, pkByteBuffer* buff) {
         break;
       }
 
-      case OP_PUSH_TYPE:
-      {
+      case OP_PUSH_TYPE: {
         int ty_index = READ_BYTE();
         ASSERT_INDEX((uint32_t)ty_index, func->owner->classes.count);
         uint32_t name_ind = func->owner->classes.data[ty_index]->name;
@@ -257,8 +261,7 @@ void dumpFunctionCode(PKVM* vm, Function* func, pkByteBuffer* buff) {
         break;
       }
 
-      case OP_PUSH_BUILTIN_FN:
-      {
+      case OP_PUSH_BUILTIN_FN: {
         int index = READ_BYTE();
         const char* name = getBuiltinFunctionName(vm, index);
 
@@ -270,9 +273,10 @@ void dumpFunctionCode(PKVM* vm, Function* func, pkByteBuffer* buff) {
         break;
       }
 
-      case OP_POP:    NO_ARGS(); break;
-      case OP_IMPORT:
-      {
+      case OP_POP:
+        NO_ARGS();
+        break;
+      case OP_IMPORT: {
         int index = READ_SHORT();
         String* name = func->owner->names.data[index];
 
@@ -296,13 +300,14 @@ void dumpFunctionCode(PKVM* vm, Function* func, pkByteBuffer* buff) {
         pkByteBufferAddString(buff, vm, STR_AND_LEN(" (argc)\n"));
         break;
 
-      case OP_ITER_TEST: NO_ARGS(); break;
+      case OP_ITER_TEST:
+        NO_ARGS();
+        break;
 
       case OP_ITER:
       case OP_JUMP:
       case OP_JUMP_IF:
-      case OP_JUMP_IF_NOT:
-      {
+      case OP_JUMP_IF_NOT: {
         int offset = READ_SHORT();
 
         // Prints: %5d (ip:%d)\n
@@ -313,8 +318,7 @@ void dumpFunctionCode(PKVM* vm, Function* func, pkByteBuffer* buff) {
         break;
       }
 
-      case OP_LOOP:
-      {
+      case OP_LOOP: {
         int offset = READ_SHORT();
 
         // Prints: %5d (ip:%d)\n
@@ -325,12 +329,13 @@ void dumpFunctionCode(PKVM* vm, Function* func, pkByteBuffer* buff) {
         break;
       }
 
-      case OP_RETURN: NO_ARGS(); break;
+      case OP_RETURN:
+        NO_ARGS();
+        break;
 
       case OP_GET_ATTRIB:
       case OP_GET_ATTRIB_KEEP:
-      case OP_SET_ATTRIB:
-      {
+      case OP_SET_ATTRIB: {
         int index = READ_SHORT();
         String* name = func->owner->names.data[index];
 
@@ -389,10 +394,9 @@ void dumpFunctionCode(PKVM* vm, Function* func, pkByteBuffer* buff) {
 #undef READ_SHORT
 #undef BYTE_ARG
 #undef SHORT_ARG
-
 }
 
-//void dumpValue(PKVM* vm, Var value) {
+// void dumpValue(PKVM* vm, Var value) {
 //  pkByteBuffer buff;
 //  pkByteBufferInit(&buff);
 //  _dumpValueInternal(vm, value, &buff);
@@ -400,7 +404,7 @@ void dumpFunctionCode(PKVM* vm, Function* func, pkByteBuffer* buff) {
 //  printf("%s", (const char*)buff.data);
 //}
 //
-//void dumpFunctionCode(PKVM* vm, Function* func) {
+// void dumpFunctionCode(PKVM* vm, Function* func) {
 //  pkByteBuffer buff;
 //  pkByteBufferInit(&buff);
 //  _dumpFunctionCodeInternal(vm, func, &buff);

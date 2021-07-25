@@ -26,7 +26,7 @@
 // To use dynamic variably-sized struct with a tail array add an array at the
 // end of the struct with size DYNAMIC_TAIL_ARRAY. This method was a legacy
 // standard called "struct hack".
-#if defined(_MSC_VER) || __STDC_VERSION__ >= 199901L // std >= c99
+#if defined(_MSC_VER) || __STDC_VERSION__ >= 199901L  // std >= c99
   #define DYNAMIC_TAIL_ARRAY
 #else
   #define DYNAMIC_TAIL_ARRAY 0
@@ -38,9 +38,9 @@
 // There are 2 main implemenation of Var's internal representation. First one
 // is NaN-tagging, and the second one is union-tagging. (read below for more).
 #if VAR_NAN_TAGGING
-  typedef uint64_t Var;
+typedef uint64_t Var;
 #else
-  typedef struct Var Var;
+typedef struct Var Var;
 #endif
 
 /**
@@ -97,73 +97,73 @@
 
 #if VAR_NAN_TAGGING
 
-// Masks and payloads.
-#define _MASK_SIGN  ((uint64_t)0x8000000000000000)
-#define _MASK_QNAN  ((uint64_t)0x7ffc000000000000)
-#define _MASK_TYPE  ((uint64_t)0x0003000000000000)
-#define _MASK_CONST ((uint64_t)0x0004000000000000)
+  // Masks and payloads.
+  #define _MASK_SIGN ((uint64_t)0x8000000000000000)
+  #define _MASK_QNAN ((uint64_t)0x7ffc000000000000)
+  #define _MASK_TYPE ((uint64_t)0x0003000000000000)
+  #define _MASK_CONST ((uint64_t)0x0004000000000000)
 
-#define _MASK_INTEGER (_MASK_QNAN | (uint64_t)0x0002000000000000)
-#define _MASK_OBJECT  (_MASK_QNAN | (uint64_t)0x8000000000000000)
+  #define _MASK_INTEGER (_MASK_QNAN | (uint64_t)0x0002000000000000)
+  #define _MASK_OBJECT (_MASK_QNAN | (uint64_t)0x8000000000000000)
 
-#define _PAYLOAD_INTEGER ((uint64_t)0x00000000ffffffff)
-#define _PAYLOAD_OBJECT  ((uint64_t)0x0000ffffffffffff)
+  #define _PAYLOAD_INTEGER ((uint64_t)0x00000000ffffffff)
+  #define _PAYLOAD_OBJECT ((uint64_t)0x0000ffffffffffff)
 
-// Primitive types.
-#define VAR_NULL      (_MASK_QNAN | (uint64_t)0x0000000000000000)
-#define VAR_UNDEFINED (_MASK_QNAN | (uint64_t)0x0001000000000000)
-#define VAR_VOID      (_MASK_QNAN | (uint64_t)0x0001000000000001)
-#define VAR_FALSE     (_MASK_QNAN | (uint64_t)0x0001000000000002)
-#define VAR_TRUE      (_MASK_QNAN | (uint64_t)0x0001000000000003)
+  // Primitive types.
+  #define VAR_NULL (_MASK_QNAN | (uint64_t)0x0000000000000000)
+  #define VAR_UNDEFINED (_MASK_QNAN | (uint64_t)0x0001000000000000)
+  #define VAR_VOID (_MASK_QNAN | (uint64_t)0x0001000000000001)
+  #define VAR_FALSE (_MASK_QNAN | (uint64_t)0x0001000000000002)
+  #define VAR_TRUE (_MASK_QNAN | (uint64_t)0x0001000000000003)
 
-// Encode types.
-#define VAR_BOOL(value) ((value)? VAR_TRUE : VAR_FALSE)
-#define VAR_INT(value)  (_MASK_INTEGER | (uint32_t)(int32_t)(value))
-#define VAR_NUM(value)  (doubleToVar(value))
-#define VAR_OBJ(value) /* [value] is an instance of Object */ \
-  ((Var)(_MASK_OBJECT | (uint64_t)(uintptr_t)(&value->_super)))
+  // Encode types.
+  #define VAR_BOOL(value) ((value) ? VAR_TRUE : VAR_FALSE)
+  #define VAR_INT(value) (_MASK_INTEGER | (uint32_t)(int32_t)(value))
+  #define VAR_NUM(value) (doubleToVar(value))
+  #define VAR_OBJ(value) /* [value] is an instance of Object */ \
+    ((Var)(_MASK_OBJECT | (uint64_t)(uintptr_t)(&value->_super)))
 
-// Const casting.
-#define ADD_CONST(value)    ((value) | _MASK_CONST)
-#define REMOVE_CONST(value) ((value) & ~_MASK_CONST)
+  // Const casting.
+  #define ADD_CONST(value) ((value) | _MASK_CONST)
+  #define REMOVE_CONST(value) ((value) & ~_MASK_CONST)
 
-// Check types.
-#define IS_CONST(value) ((value & _MASK_CONST) == _MASK_CONST)
-#define IS_NULL(value)  ((value) == VAR_NULL)
-#define IS_UNDEF(value) ((value) == VAR_UNDEFINED)
-#define IS_FALSE(value) ((value) == VAR_FALSE)
-#define IS_TRUE(value)  ((value) == VAR_TRUE)
-#define IS_BOOL(value)  (IS_TRUE(value) || IS_FALSE(value))
-#define IS_INT(value)   ((value & _MASK_INTEGER) == _MASK_INTEGER)
-#define IS_NUM(value)   ((value & _MASK_QNAN) != _MASK_QNAN)
-#define IS_OBJ(value)   ((value & _MASK_OBJECT) == _MASK_OBJECT)
+  // Check types.
+  #define IS_CONST(value) ((value & _MASK_CONST) == _MASK_CONST)
+  #define IS_NULL(value) ((value) == VAR_NULL)
+  #define IS_UNDEF(value) ((value) == VAR_UNDEFINED)
+  #define IS_FALSE(value) ((value) == VAR_FALSE)
+  #define IS_TRUE(value) ((value) == VAR_TRUE)
+  #define IS_BOOL(value) (IS_TRUE(value) || IS_FALSE(value))
+  #define IS_INT(value) ((value & _MASK_INTEGER) == _MASK_INTEGER)
+  #define IS_NUM(value) ((value & _MASK_QNAN) != _MASK_QNAN)
+  #define IS_OBJ(value) ((value & _MASK_OBJECT) == _MASK_OBJECT)
 
-// Evaluate to true if the var is an object and type of [obj_type].
-#define IS_OBJ_TYPE(var, obj_type) IS_OBJ(var) && AS_OBJ(var)->type == obj_type
+  // Evaluate to true if the var is an object and type of [obj_type].
+  #define IS_OBJ_TYPE(var, obj_type) \
+    IS_OBJ(var) && AS_OBJ(var)->type == obj_type
 
-// Check if the 2 pocket strings are equal.
-#define IS_STR_EQ(s1, s2)          \
- (((s1)->hash == (s2)->hash) &&    \
- ((s1)->length == (s2)->length) && \
- (memcmp((const void*)(s1)->data, (const void*)(s2)->data, (s1)->length) == 0))
+  // Check if the 2 pocket strings are equal.
+  #define IS_STR_EQ(s1, s2)                                          \
+    (((s1)->hash == (s2)->hash) && ((s1)->length == (s2)->length) && \
+     (memcmp((const void*)(s1)->data, (const void*)(s2)->data,       \
+             (s1)->length) == 0))
 
-// Compare pocket string with c string.
-#define IS_CSTR_EQ(str, cstr, len, chash)  \
- (((str)->hash == chash) &&                \
- ((str)->length == len) &&                 \
- (memcmp((const void*)(str)->data, (const void*)(cstr), len) == 0))
+  // Compare pocket string with c string.
+  #define IS_CSTR_EQ(str, cstr, len, chash)              \
+    (((str)->hash == chash) && ((str)->length == len) && \
+     (memcmp((const void*)(str)->data, (const void*)(cstr), len) == 0))
 
-// Decode types.
-#define AS_BOOL(value) ((value) == VAR_TRUE)
-#define AS_INT(value)  ((int32_t)((value) & _PAYLOAD_INTEGER))
-#define AS_NUM(value)  (varToDouble(value))
-#define AS_OBJ(value)  ((Object*)(value & _PAYLOAD_OBJECT))
+  // Decode types.
+  #define AS_BOOL(value) ((value) == VAR_TRUE)
+  #define AS_INT(value) ((int32_t)((value)&_PAYLOAD_INTEGER))
+  #define AS_NUM(value) (varToDouble(value))
+  #define AS_OBJ(value) ((Object*)(value & _PAYLOAD_OBJECT))
 
-#define AS_STRING(value)  ((String*)AS_OBJ(value))
-#define AS_CSTRING(value) (AS_STRING(value)->data)
-#define AS_ARRAY(value)   ((List*)AS_OBJ(value))
-#define AS_MAP(value)     ((Map*)AS_OBJ(value))
-#define AS_RANGE(value)   ((Range*)AS_OBJ(value))
+  #define AS_STRING(value) ((String*)AS_OBJ(value))
+  #define AS_CSTRING(value) (AS_STRING(value)->data)
+  #define AS_ARRAY(value) ((List*)AS_OBJ(value))
+  #define AS_MAP(value) ((Map*)AS_OBJ(value))
+  #define AS_RANGE(value) ((Range*)AS_OBJ(value))
 
 #else
 
@@ -171,13 +171,13 @@
 //       starts with an underscore.
 
 typedef enum {
-  VAR_UNDEFINED, //< Internal type for exceptions.
-  VAR_NULL,      //< Null pointer type.
-  VAR_BOOL,      //< Yin and yang of software.
-  VAR_INT,       //< Only 32bit integers (for consistence with Nan-Tagging).
-  VAR_FLOAT,     //< Floats are stored as (64bit) double.
+  VAR_UNDEFINED,  //< Internal type for exceptions.
+  VAR_NULL,       //< Null pointer type.
+  VAR_BOOL,       //< Yin and yang of software.
+  VAR_INT,        //< Only 32bit integers (for consistence with Nan-Tagging).
+  VAR_FLOAT,      //< Floats are stored as (64bit) double.
 
-  VAR_OBJECT,    //< Base type for all \ref var_Object types.
+  VAR_OBJECT,  //< Base type for all \ref var_Object types.
 } VarType;
 
 struct Var {
@@ -190,7 +190,7 @@ struct Var {
   };
 };
 
-#endif // VAR_NAN_TAGGING
+#endif  // VAR_NAN_TAGGING
 
 // Type definition of pocketlang heap allocated types.
 typedef struct Object Object;
@@ -250,7 +250,7 @@ struct String {
 struct List {
   Object _super;
 
-  pkVarBuffer elements; //< Elements of the array.
+  pkVarBuffer elements;  //< Elements of the array.
 };
 
 typedef struct {
@@ -258,23 +258,23 @@ typedef struct {
   // the entry is new and available, if true it's a tombstone - the entry
   // previously used but then deleted.
 
-  Var key;   //< The entry's key or VAR_UNDEFINED of the entry is not in use.
-  Var value; //< The entry's value.
+  Var key;    //< The entry's key or VAR_UNDEFINED of the entry is not in use.
+  Var value;  //< The entry's value.
 } MapEntry;
 
 struct Map {
   Object _super;
 
-  uint32_t capacity; //< Allocated entry's count.
-  uint32_t count;    //< Number of entries in the map.
-  MapEntry* entries; //< Pointer to the contiguous array.
+  uint32_t capacity;  //< Allocated entry's count.
+  uint32_t count;     //< Number of entries in the map.
+  MapEntry* entries;  //< Pointer to the contiguous array.
 };
 
 struct Range {
   Object _super;
 
-  double from; //< Beggining of the range inclusive.
-  double to;   //< End of the range exclusive.
+  double from;  //< Beggining of the range inclusive.
+  double to;    //< End of the range exclusive.
 };
 
 struct Script {
@@ -282,19 +282,19 @@ struct Script {
 
   // For core libraries the module and the path are same and points to the
   // same String objects.
-  String* module; //< Module name of the script.
-  String* path;   //< Path of the script.
+  String* module;  //< Module name of the script.
+  String* path;    //< Path of the script.
 
-  pkVarBuffer globals;         //< Script level global variables.
-  pkUintBuffer global_names;   //< Name map to index in globals.
+  pkVarBuffer globals;        //< Script level global variables.
+  pkUintBuffer global_names;  //< Name map to index in globals.
 
   pkFunctionBuffer functions;  //< Functions of the script.
   pkClassBuffer classes;       //< Classes of the script.
 
-  pkStringBuffer names;        //< Name literals, attribute names, etc.
-  pkVarBuffer literals;        //< Script literal constant values.
+  pkStringBuffer names;  //< Name literals, attribute names, etc.
+  pkVarBuffer literals;  //< Script literal constant values.
 
-  Function* body;              //< Script body is an anonymous function.
+  Function* body;  //< Script body is an anonymous function.
 
   // When a script has globals, it's body need to be executed to initialize the
   // global values, this will be false if the module isn't initialized yet and
@@ -312,33 +312,33 @@ typedef struct {
 struct Function {
   Object _super;
 
-  const char* name; //< Name in the script [owner] or C literal.
-  Script* owner;    //< Owner script of the function.
-  int arity;        //< Number of argument the function expects.
+  const char* name;  //< Name in the script [owner] or C literal.
+  Script* owner;     //< Owner script of the function.
+  int arity;         //< Number of argument the function expects.
 
   // Docstring of the function, currently it's just the C string literal
   // pointer, refactor this into String* so that we can support public
   // native functions to provide a docstring.
   const char* docstring;
 
-  bool is_native;        //< True if Native function.
+  bool is_native;  //< True if Native function.
   union {
-    pkNativeFn native;   //< Native function pointer.
-    Fn* fn;              //< Script function pointer.
+    pkNativeFn native;  //< Native function pointer.
+    Fn* fn;             //< Script function pointer.
   };
 };
 
 typedef struct {
-  const uint8_t* ip;  //< Pointer to the next instruction byte code.
-  const Function* fn; //< Function of the frame.
-  Var* rbp;           //< Stack base pointer. (%rbp)
+  const uint8_t* ip;   //< Pointer to the next instruction byte code.
+  const Function* fn;  //< Function of the frame.
+  Var* rbp;            //< Stack base pointer. (%rbp)
 } CallFrame;
 
 typedef enum {
-  FIBER_NEW,     //< Fiber haven't started yet.
-  FIBER_RUNNING, //< Fiber is currently running.
-  FIBER_YIELDED, //< Yielded fiber, can be resumed.
-  FIBER_DONE,    //< Fiber finished and cannot be resumed.
+  FIBER_NEW,      //< Fiber haven't started yet.
+  FIBER_RUNNING,  //< Fiber is currently running.
+  FIBER_YIELDED,  //< Yielded fiber, can be resumed.
+  FIBER_DONE,     //< Fiber finished and cannot be resumed.
 } FiberState;
 
 struct Fiber {
@@ -353,7 +353,7 @@ struct Fiber {
   // The stack of the execution holding locals and temps. A heap will be
   // allocated and grow as needed.
   Var* stack;
-  int stack_size; //< Capacity of the allocated stack.
+  int stack_size;  //< Capacity of the allocated stack.
 
   // The stack pointer (%rsp) pointing to the stack top.
   Var* sp;
@@ -366,8 +366,8 @@ struct Fiber {
 
   // Heap allocated array of call frames will grow as needed.
   CallFrame* frames;
-  int frame_capacity; //< Capacity of the frames array.
-  int frame_count; //< Number of frame entry in frames.
+  int frame_capacity;  //< Capacity of the frames array.
+  int frame_count;     //< Number of frame entry in frames.
 
   // Caller of this fiber if it has one, NULL otherwise.
   Fiber* caller;
@@ -379,17 +379,17 @@ struct Fiber {
 struct Class {
   Object _super;
 
-  Script* owner; //< The script it belongs to.
-  uint32_t name; //< Index of the type's name in the script's name buffer.
+  Script* owner;  //< The script it belongs to.
+  uint32_t name;  //< Index of the type's name in the script's name buffer.
 
-  Function* ctor; //< The constructor function.
-  pkUintBuffer field_names; //< Buffer of field names.
+  Function* ctor;            //< The constructor function.
+  pkUintBuffer field_names;  //< Buffer of field names.
   // TODO: ordered names buffer for binary search.
 };
 
 typedef struct {
-  Class* type;        //< Class this instance belongs to.
-  pkVarBuffer fields; //< Var buffer of the instance.
+  Class* type;         //< Class this instance belongs to.
+  pkVarBuffer fields;  //< Var buffer of the instance.
 } Inst;
 
 struct Instance {
@@ -397,8 +397,8 @@ struct Instance {
 
   const char* name;  //< Name of the type it belongs to.
 
-  bool is_native;    //< True if it's a native type instance.
-  uint32_t native_id;   //< Unique ID of this native instance.
+  bool is_native;      //< True if it's a native type instance.
+  uint32_t native_id;  //< Unique ID of this native instance.
 
   union {
     void* native;  //< C struct pointer. // TODO:
@@ -420,13 +420,13 @@ String* newStringLength(PKVM* vm, const char* text, uint32_t length);
 // An inline function/macro implementation of newString(). Set below 0 to 1, to
 // make the implementation a static inline function, it's totally okey to
 // define a function inside a header as long as it's static (but not a fan).
-#if 0 // Function implementation.
+#if 0  // Function implementation.
   // Allocate new string using the cstring [text].
   static inline String* newString(PKVM* vm, const char* text) {
     uint32_t length = (text == NULL) ? 0 : (uint32_t)strlen(text);
     return newStringLength(vm, text, length);
   }
-#else // Macro implementation.
+#else  // Macro implementation.
   // Allocate new string using the cstring [text].
   #define newString(vm, text) \
     newStringLength(vm, text, (!text) ? 0 : (uint32_t)strlen(text))
@@ -533,11 +533,11 @@ String* stringJoin(PKVM* vm, String* str1, String* str2);
 // An inline function/macro implementation of listAppend(). Set below 0 to 1,
 // to make the implementation a static inline function, it's totally okey to
 // define a function inside a header as long as it's static (but not a fan).
-#if 0 // Function implementation.
+#if 0  // Function implementation.
   static inline void listAppend(PKVM* vm, List* self, Var value) {
     pkVarBufferWrite(&self->elements, vm, value);
   }
-#else // Macro implementation.
+#else  // Macro implementation.
   #define listAppend(vm, self, value) \
     pkVarBufferWrite(&self->elements, vm, value)
 #endif
@@ -588,9 +588,8 @@ int scriptGetFunc(Script* script, const char* name, uint32_t length);
 int scriptGetGlobals(Script* script, const char* name, uint32_t length);
 
 // Add a global [value] to the [scrpt] and return its index.
-uint32_t scriptAddGlobal(PKVM* vm, Script* script,
-                         const char* name, uint32_t length,
-                         Var value);
+uint32_t scriptAddGlobal(PKVM* vm, Script* script, const char* name,
+                         uint32_t length, Var value);
 
 // This will allocate a new implicit main function for the script and assign to
 // the script's body attribute. And the attribute initialized will be set to
@@ -647,9 +646,9 @@ String* toString(PKVM* vm, const Var value);
 
 // Returns the representation version of the [value], similar to python's
 // __repr__() method.
-String * toRepr(PKVM * vm, const Var value);
+String* toRepr(PKVM* vm, const Var value);
 
 // Returns the truthy value of the var.
 bool toBool(Var v);
 
-#endif // VAR_H
+#endif  // VAR_H

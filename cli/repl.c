@@ -6,9 +6,9 @@
 // The REPL (Read Evaluate Print Loop) implementation.
 // https://en.wikipedia.org/wiki/Read-eval-print_loop.
 
-#include "internal.h"
+#include <ctype.h>  // isspace
 
-#include <ctype.h> // isspace
+#include "internal.h"
 #include "utils.h"
 
 // FIXME: use fgetc char by char till reach a new line.
@@ -57,7 +57,6 @@ static inline bool is_str_empty(const char* line) {
 
 // The main loop of the REPL. Will return the exit code.
 int repl(PKVM* vm, const PkCompileOptions* options) {
-
   // Set repl_mode of the user_data.
   VmUserData* user_data = (VmUserData*)pkGetUserData(vm);
   user_data->repl_mode = true;
@@ -79,7 +78,6 @@ int repl(PKVM* vm, const PkCompileOptions* options) {
 
   bool done = false;
   do {
-
     // Print the input listening line.
     if (!need_more_lines) {
       printf(">>> ");
@@ -104,12 +102,12 @@ int repl(PKVM* vm, const PkCompileOptions* options) {
     byteBufferWrite(&lines, '\0');
 
     // Compile the buffer to the module.
-    PkStringPtr source_ptr = { (const char*)lines.data, NULL, NULL };
+    PkStringPtr source_ptr = {(const char*)lines.data, NULL, NULL};
     PkResult result = pkCompileModule(vm, module, source_ptr, options);
 
     if (result == PK_RESULT_UNEXPECTED_EOF) {
       ASSERT(lines.count > 0 && lines.data[lines.count - 1] == '\0', OOPS);
-      lines.count -= 1; // Remove the null byte to append a new string.
+      lines.count -= 1;  // Remove the null byte to append a new string.
       need_more_lines = true;
       continue;
     }
@@ -136,4 +134,3 @@ int repl(PKVM* vm, const PkCompileOptions* options) {
 
   return 0;
 }
-

@@ -7,7 +7,6 @@
 #define PK_INTERNAL
 
 #include "include/pocketlang.h"
-
 #include "pk_common.h"
 
 // Commonly used c standard headers across the sources. Don't include any
@@ -62,21 +61,19 @@
 /*****************************************************************************/
 
 // Allocate object of [type] using the vmRealloc function.
-#define ALLOCATE(vm, type) \
-    ((type*)vmRealloc(vm, NULL, 0, sizeof(type)))
+#define ALLOCATE(vm, type) ((type*)vmRealloc(vm, NULL, 0, sizeof(type)))
 
 // Allocate object of [type] which has a dynamic tail array of type [tail_type]
 // with [count] entries.
 #define ALLOCATE_DYNAMIC(vm, type, count, tail_type) \
-    ((type*)vmRealloc(vm, NULL, 0, sizeof(type) + sizeof(tail_type) * (count)))
+  ((type*)vmRealloc(vm, NULL, 0, sizeof(type) + sizeof(tail_type) * (count)))
 
 // Allocate [count] amount of object of [type] array.
 #define ALLOCATE_ARRAY(vm, type, count) \
-    ((type*)vmRealloc(vm, NULL, 0, sizeof(type) * (count)))
+  ((type*)vmRealloc(vm, NULL, 0, sizeof(type) * (count)))
 
 // Deallocate a pointer allocated by vmRealloc before.
-#define DEALLOCATE(vm, pointer) \
-    vmRealloc(vm, pointer, 0, 0)
+#define DEALLOCATE(vm, pointer) vmRealloc(vm, pointer, 0, 0)
 
 /*****************************************************************************/
 /* REUSABLE INTERNAL MACROS                                                  */
@@ -102,4 +99,4 @@
 //
 #define CHECK_HASH(name, hash) hash
 
-#endif // PK_INTERNAL
+#endif  // PK_INTERNAL

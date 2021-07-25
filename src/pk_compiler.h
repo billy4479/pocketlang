@@ -10,9 +10,9 @@
 #include "pk_var.h"
 
 typedef enum {
-  #define OPCODE(name, _, __) OP_##name,
-  #include "pk_opcodes.h"
-  #undef OPCODE
+#define OPCODE(name, _, __) OP_##name,
+#include "pk_opcodes.h"
+#undef OPCODE
 } Opcode;
 
 // Pocketlang compiler is a one pass/single pass compiler, which means it
@@ -37,4 +37,4 @@ PkResult compile(PKVM* vm, Script* script, const char* source,
 // called at the marking phase of vmCollectGarbage().
 void compilerMarkObjects(PKVM* vm, Compiler* compiler);
 
-#endif // COMPILER_H
+#endif  // COMPILER_H

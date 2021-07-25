@@ -49,9 +49,9 @@
 // they're member of function buffer of the script) and this struct is a single
 // entry of the array.
 typedef struct {
-  const char* name; //< Name of the function.
-  uint32_t length;  //< Length of the name.
-  Function* fn;     //< Native function pointer.
+  const char* name;  //< Name of the function.
+  uint32_t length;   //< Length of the name.
+  Function* fn;      //< Native function pointer.
 } BuiltinFn;
 
 // A doubly link list of vars that have reference in the host application.
@@ -66,7 +66,6 @@ struct PkHandle {
 // PocketLang Virtual Machine. It'll contain the state of the execution, stack,
 // heap, and manage memory allocations.
 struct PKVM {
-
   // The first object in the link list of all heap allocated objects.
   Object* first;
 
@@ -144,7 +143,8 @@ void* vmRealloc(PKVM* vm, void* memory, size_t old_size, size_t new_size);
 PkHandle* vmNewHandle(PKVM* vm, Var value);
 
 // Trigger garbage collection. This is an implementation of mark and sweep
-// garbage collection (https://en.wikipedia.org/wiki/Tracing_garbage_collection).
+// garbage collection
+// (https://en.wikipedia.org/wiki/Tracing_garbage_collection).
 //
 // 1. MARKING PHASE
 //
@@ -212,4 +212,4 @@ bool vmSwitchFiber(PKVM* vm, Fiber* fiber, Var* value);
 // yield value.
 void vmYieldFiber(PKVM* vm, Var* value);
 
-#endif // VM_H
+#endif  // VM_H

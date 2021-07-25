@@ -5,8 +5,8 @@
 
 #include "pk_var.h"
 
-#include <math.h>
 #include <ctype.h>
+#include <math.h>
 
 #include "pk_utils.h"
 #include "pk_vm.h"
@@ -27,15 +27,24 @@ PkVarType pkGetValueType(const PkVar value) {
 
   const Object* obj = AS_OBJ(*(const Var*)(value));
   switch (obj->type) {
-    case OBJ_STRING: return PK_STRING;
-    case OBJ_LIST:   return PK_LIST;
-    case OBJ_MAP:    return PK_MAP;
-    case OBJ_RANGE:  return PK_RANGE;
-    case OBJ_SCRIPT: return PK_SCRIPT;
-    case OBJ_FUNC:   return PK_FUNCTION;
-    case OBJ_FIBER:  return PK_FIBER;
-    case OBJ_CLASS:  return PK_CLASS;
-    case OBJ_INST:   return PK_INST;
+    case OBJ_STRING:
+      return PK_STRING;
+    case OBJ_LIST:
+      return PK_LIST;
+    case OBJ_MAP:
+      return PK_MAP;
+    case OBJ_RANGE:
+      return PK_RANGE;
+    case OBJ_SCRIPT:
+      return PK_SCRIPT;
+    case OBJ_FUNC:
+      return PK_FUNCTION;
+    case OBJ_FIBER:
+      return PK_FIBER;
+    case OBJ_CLASS:
+      return PK_CLASS;
+    case OBJ_INST:
+      return PK_INST;
   }
 
   UNREACHABLE();
@@ -43,33 +52,33 @@ PkVarType pkGetValueType(const PkVar value) {
 
 PkHandle* pkNewString(PKVM* vm, const char* value) {
   String* str = newString(vm, value);
-  vmPushTempRef(vm, &str->_super); // str
+  vmPushTempRef(vm, &str->_super);  // str
   PkHandle* handle = vmNewHandle(vm, VAR_OBJ(str));
-  vmPopTempRef(vm); // str
+  vmPopTempRef(vm);  // str
   return handle;
 }
 
 PkHandle* pkNewStringLength(PKVM* vm, const char* value, size_t len) {
   String* str = newStringLength(vm, value, (uint32_t)len);
-  vmPushTempRef(vm, &str->_super); // str
+  vmPushTempRef(vm, &str->_super);  // str
   PkHandle* handle = vmNewHandle(vm, VAR_OBJ(str));
-  vmPopTempRef(vm); // str
+  vmPopTempRef(vm);  // str
   return handle;
 }
 
 PkHandle* pkNewList(PKVM* vm) {
   List* list = newList(vm, MIN_CAPACITY);
-  vmPushTempRef(vm, &list->_super); // list
+  vmPushTempRef(vm, &list->_super);  // list
   PkHandle* handle = vmNewHandle(vm, VAR_OBJ(list));
-  vmPopTempRef(vm); // list
+  vmPopTempRef(vm);  // list
   return handle;
 }
 
 PkHandle* pkNewMap(PKVM* vm) {
   Map* map = newMap(vm);
-  vmPushTempRef(vm, &map->_super); // map
+  vmPushTempRef(vm, &map->_super);  // map
   PkHandle* handle = vmNewHandle(vm, VAR_OBJ(map));
-  vmPopTempRef(vm); // map
+  vmPopTempRef(vm);  // map
   return handle;
 }
 
@@ -77,17 +86,17 @@ PkHandle* pkNewFiber(PKVM* vm, PkHandle* fn) {
   __ASSERT(IS_OBJ_TYPE(fn->value, OBJ_FUNC), "Fn should be of type function.");
 
   Fiber* fiber = newFiber(vm, (Function*)AS_OBJ(fn->value));
-  vmPushTempRef(vm, &fiber->_super); // fiber
+  vmPushTempRef(vm, &fiber->_super);  // fiber
   PkHandle* handle = vmNewHandle(vm, VAR_OBJ(fiber));
-  vmPopTempRef(vm); // fiber
+  vmPopTempRef(vm);  // fiber
   return handle;
 }
 
 PkHandle* pkNewInstNative(PKVM* vm, void* data, uint32_t id) {
   Instance* inst = newInstanceNative(vm, data, id);
-  vmPushTempRef(vm, &inst->_super); // inst
+  vmPushTempRef(vm, &inst->_super);  // inst
   PkHandle* handle = vmNewHandle(vm, VAR_OBJ(inst));
-  vmPopTempRef(vm); // inst
+  vmPopTempRef(vm);  // inst
   return handle;
 }
 
@@ -137,9 +146,8 @@ void markObject(PKVM* vm, Object* self) {
   if (vm->working_set_count >= vm->working_set_capacity) {
     vm->working_set_capacity *= 2;
     vm->working_set = (Object**)vm->config.realloc_fn(
-                                    vm->working_set,
-                                    vm->working_set_capacity * sizeof(Object*),
-                                    vm->config.user_data);
+        vm->working_set, vm->working_set_capacity * sizeof(Object*),
+        vm->config.user_data);
   }
 
   vm->working_set[vm->working_set_count++] = self;
@@ -202,8 +210,7 @@ static void popMarkedObjectsInternal(Object* obj, PKVM* vm) {
       vm->bytes_allocated += sizeof(Range);
     } break;
 
-    case OBJ_SCRIPT:
-    {
+    case OBJ_SCRIPT: {
       Script* scr = (Script*)obj;
       vm->bytes_allocated += sizeof(Script);
 
@@ -231,8 +238,7 @@ static void popMarkedObjectsInternal(Object* obj, PKVM* vm) {
       markObject(vm, &scr->body->_super);
     } break;
 
-    case OBJ_FUNC:
-    {
+    case OBJ_FUNC: {
       Function* func = (Function*)obj;
       vm->bytes_allocated += sizeof(Function);
 
@@ -242,13 +248,12 @@ static void popMarkedObjectsInternal(Object* obj, PKVM* vm) {
         Fn* fn = func->fn;
         vm->bytes_allocated += sizeof(Fn);
 
-        vm->bytes_allocated += sizeof(uint8_t)* fn->opcodes.capacity;
+        vm->bytes_allocated += sizeof(uint8_t) * fn->opcodes.capacity;
         vm->bytes_allocated += sizeof(uint32_t) * fn->oplines.capacity;
       }
     } break;
 
-    case OBJ_FIBER:
-    {
+    case OBJ_FIBER: {
       Fiber* fiber = (Fiber*)obj;
       vm->bytes_allocated += sizeof(Fiber);
 
@@ -272,8 +277,7 @@ static void popMarkedObjectsInternal(Object* obj, PKVM* vm) {
 
     } break;
 
-    case OBJ_CLASS:
-    {
+    case OBJ_CLASS: {
       Class* type = (Class*)obj;
       vm->bytes_allocated += sizeof(Class);
       markObject(vm, &type->owner->_super);
@@ -281,8 +285,7 @@ static void popMarkedObjectsInternal(Object* obj, PKVM* vm) {
       vm->bytes_allocated += sizeof(uint32_t) * type->field_names.capacity;
     } break;
 
-    case OBJ_INST:
-    {
+    case OBJ_INST: {
       Instance* inst = (Instance*)obj;
       if (!inst->is_native) {
         Inst* ins = inst->ins;
@@ -304,8 +307,8 @@ Var doubleToVar(double value) {
 #if VAR_NAN_TAGGING
   return utilDoubleToBits(value);
 #else
-#error TODO:
-#endif // VAR_NAN_TAGGING
+  #error TODO:
+#endif  // VAR_NAN_TAGGING
 }
 
 double varToDouble(Var value) {
@@ -313,7 +316,7 @@ double varToDouble(Var value) {
   return utilDoubleFromBits(value);
 #else
   #error TODO:
-#endif // VAR_NAN_TAGGING
+#endif  // VAR_NAN_TAGGING
 }
 
 static String* _allocateString(PKVM* vm, size_t length) {
@@ -326,7 +329,6 @@ static String* _allocateString(PKVM* vm, size_t length) {
 }
 
 String* newStringLength(PKVM* vm, const char* text, uint32_t length) {
-
   ASSERT(length == 0 || text != NULL, "Unexpected NULL string.");
 
   String* string = _allocateString(vm, length);
@@ -402,7 +404,7 @@ Script* newScript(PKVM* vm, String* name, bool is_core) {
 
     // TODO: Add ARGV as a global.
 
-    vmPopTempRef(vm); // script.
+    vmPopTempRef(vm);  // script.
   }
 
   return script;
@@ -410,11 +412,10 @@ Script* newScript(PKVM* vm, String* name, bool is_core) {
 
 Function* newFunction(PKVM* vm, const char* name, int length, Script* owner,
                       bool is_native, const char* docstring) {
-
   Function* func = ALLOCATE(vm, Function);
   varInitObject(&func->_super, vm, OBJ_FUNC);
 
-  vmPushTempRef(vm, &func->_super); // func
+  vmPushTempRef(vm, &func->_super);  // func
 
   if (owner == NULL) {
     ASSERT(is_native, OOPS);
@@ -428,7 +429,7 @@ Function* newFunction(PKVM* vm, const char* name, int length, Script* owner,
 
     func->name = owner->names.data[name_index]->data;
     func->owner = owner;
-    func->arity = -2; // -1 means variadic args.
+    func->arity = -2;  // -1 means variadic args.
     func->is_native = is_native;
   }
 
@@ -446,7 +447,7 @@ Function* newFunction(PKVM* vm, const char* name, int length, Script* owner,
   // Both native and script (TODO:) functions support docstring.
   func->docstring = docstring;
 
-  vmPopTempRef(vm); // func
+  vmPopTempRef(vm);  // func
   return func;
 }
 
@@ -499,7 +500,7 @@ Class* newClass(PKVM* vm, Script* scr, const char* name, uint32_t length) {
   Class* type = ALLOCATE(vm, Class);
   varInitObject(&type->_super, vm, OBJ_CLASS);
 
-  vmPushTempRef(vm, &type->_super); // type.
+  vmPushTempRef(vm, &type->_super);  // type.
 
   pkClassBufferWrite(&scr->classes, vm, type);
   type->owner = scr;
@@ -509,26 +510,25 @@ Class* newClass(PKVM* vm, Script* scr, const char* name, uint32_t length) {
   // Can't use '$' in string format. (TODO)
   String* ty_name = scr->names.data[type->name];
   String* dollar = newStringLength(vm, "$", 1);
-  vmPushTempRef(vm, &dollar->_super); // dollar
+  vmPushTempRef(vm, &dollar->_super);  // dollar
   String* ctor_name = stringFormat(vm, "@(Ctor:@)", dollar, ty_name);
-  vmPopTempRef(vm); // dollar
+  vmPopTempRef(vm);  // dollar
 
   // Constructor.
-  vmPushTempRef(vm, &ctor_name->_super); // ctor_name
-  type->ctor = newFunction(vm, ctor_name->data, ctor_name->length,
-                           scr, false, NULL);
-  vmPopTempRef(vm); // ctor_name
+  vmPushTempRef(vm, &ctor_name->_super);  // ctor_name
+  type->ctor =
+      newFunction(vm, ctor_name->data, ctor_name->length, scr, false, NULL);
+  vmPopTempRef(vm);  // ctor_name
 
-  vmPopTempRef(vm); // type.
+  vmPopTempRef(vm);  // type.
   return type;
 }
 
 Instance* newInstance(PKVM* vm, Class* ty, bool initialize) {
-
   Instance* inst = ALLOCATE(vm, Instance);
   varInitObject(&inst->_super, vm, OBJ_INST);
 
-  vmPushTempRef(vm, &inst->_super); // inst.
+  vmPushTempRef(vm, &inst->_super);  // inst.
 
   ASSERT(ty->name < ty->owner->names.count, OOPS);
   inst->name = ty->owner->names.data[ty->name]->data;
@@ -543,7 +543,7 @@ Instance* newInstance(PKVM* vm, Class* ty, bool initialize) {
     pkVarBufferFill(&ins->fields, vm, VAR_NULL, ty->field_names.count);
   }
 
-  vmPopTempRef(vm); // inst.
+  vmPopTempRef(vm);  // inst.
 
   return inst;
 }
@@ -585,7 +585,6 @@ String* stringLower(PKVM* vm, String* self) {
   uint32_t index = 0;
   for (const char* c = self->data; *c != '\0'; c++, index++) {
     if (isupper(*c)) {
-
       // It contain upper case letters, allocate new lower case string .
       String* lower = newStringLength(vm, self->data, self->length);
 
@@ -624,7 +623,6 @@ String* stringUpper(PKVM* vm, String* self) {
 }
 
 String* stringStrip(PKVM* vm, String* self) {
-
   // Implementation:
   //
   // "     a string with leading and trailing white space    "
@@ -684,23 +682,20 @@ String* stringFormat(PKVM* vm, const char* fmt, ...) {
   char* buff = result->data;
   for (const char* c = fmt; *c != '\0'; c++) {
     switch (*c) {
-      case '$':
-      {
+      case '$': {
         const char* string = va_arg(arg_list, const char*);
         size_t length = strlen(string);
         memcpy(buff, string, length);
         buff += length;
       } break;
 
-      case '@':
-      {
+      case '@': {
         String* string = va_arg(arg_list, String*);
         memcpy(buff, string->data, string->length);
         buff += string->length;
       } break;
 
-      default:
-      {
+      default: {
         *buff++ = *c;
       } break;
     }
@@ -712,7 +707,6 @@ String* stringFormat(PKVM* vm, const char* fmt, ...) {
 }
 
 String* stringJoin(PKVM* vm, String* str1, String* str2) {
-
   // Optimize end case.
   if (str1->length == 0) return str2;
   if (str2->length == 0) return str1;
@@ -729,7 +723,6 @@ String* stringJoin(PKVM* vm, String* str1, String* str2) {
 }
 
 void listInsert(PKVM* vm, List* self, uint32_t index, Var value) {
-
   // Add an empty slot at the end of the buffer.
   if (IS_OBJ(value)) vmPushTempRef(vm, AS_OBJ(value));
   pkVarBufferWrite(&self->elements, vm, VAR_NULL);
@@ -755,9 +748,9 @@ Var listRemoveAt(PKVM* vm, List* self, uint32_t index) {
 
   // Shrink the size if it's too much excess.
   if (self->elements.capacity / GROW_FACTOR >= self->elements.count) {
-    self->elements.data = (Var*)vmRealloc(vm, self->elements.data,
-      sizeof(Var) * self->elements.capacity,
-      sizeof(Var) * self->elements.capacity / GROW_FACTOR);
+    self->elements.data = (Var*)vmRealloc(
+        vm, self->elements.data, sizeof(Var) * self->elements.capacity,
+        sizeof(Var) * self->elements.capacity / GROW_FACTOR);
     self->elements.capacity /= GROW_FACTOR;
   }
 
@@ -768,7 +761,6 @@ Var listRemoveAt(PKVM* vm, List* self, uint32_t index) {
 }
 
 List* listJoin(PKVM* vm, List* l1, List* l2) {
-
   // Optimize end case.
   if (l1->elements.count == 0) return l2;
   if (l2->elements.count == 0) return l1;
@@ -786,12 +778,10 @@ List* listJoin(PKVM* vm, List* l1, List* l2) {
 
 // Return a hash value for the object.
 static uint32_t _hashObject(Object* obj) {
-
   ASSERT(isObjectHashable(obj->type),
          "Check if it's hashable before calling this method.");
 
   switch (obj->type) {
-
     case OBJ_STRING:
       return ((String*)obj)->hash;
 
@@ -799,8 +789,7 @@ static uint32_t _hashObject(Object* obj) {
     case OBJ_MAP:
       goto L_unhashable;
 
-    case OBJ_RANGE:
-    {
+    case OBJ_RANGE: {
       Range* range = (Range*)obj;
       return utilHashNumber(range->from) ^ utilHashNumber(range->to);
     }
@@ -836,7 +825,6 @@ uint32_t varHashValue(Var v) {
 // point to the entry, return false otherwise and points [result] to where
 // the entry should be inserted.
 static bool _mapFindEntry(Map* self, Var key, MapEntry** result) {
-
   // An empty map won't contain the key.
   if (self->capacity == 0) return false;
 
@@ -857,7 +845,6 @@ static bool _mapFindEntry(Map* self, Var key, MapEntry** result) {
       ASSERT(IS_BOOL(entry->value), OOPS);
 
       if (IS_TRUE(entry->value)) {
-
         // We've found a tombstone, if we haven't found one [tombstone] should
         // be updated. We still need to keep search for if the key exists.
         if (tombstone == NULL) tombstone = entry;
@@ -891,7 +878,6 @@ static bool _mapFindEntry(Map* self, Var key, MapEntry** result) {
 // Add the key, value pair to the entries array of the map. Returns true if
 // the entry added for the first time and false for replaced value.
 static bool _mapInsertEntry(Map* self, Var key, Var value) {
-
   ASSERT(self->capacity != 0, "Should ensure the capacity before inserting.");
 
   MapEntry* result;
@@ -908,7 +894,6 @@ static bool _mapInsertEntry(Map* self, Var key, Var value) {
 
 // Resize the map's size to the given [capacity].
 static void _mapResize(PKVM* vm, Map* self, uint32_t capacity) {
-
   MapEntry* old_entries = self->entries;
   uint32_t old_capacity = self->capacity;
 
@@ -937,7 +922,6 @@ Var mapGet(Map* self, Var key) {
 }
 
 void mapSet(PKVM* vm, Map* self, Var key, Var value) {
-
   // If map is about to fill, resize it first.
   if (self->count + 1 > self->capacity * MAP_LOAD_PERCENT / 100) {
     uint32_t capacity = self->capacity * GROW_FACTOR;
@@ -946,7 +930,7 @@ void mapSet(PKVM* vm, Map* self, Var key, Var value) {
   }
 
   if (_mapInsertEntry(self, key, value)) {
-    self->count++; //< A new key added.
+    self->count++;  //< A new key added.
   }
 }
 
@@ -975,10 +959,9 @@ Var mapRemoveKey(PKVM* vm, Map* self, Var key) {
     // Clear the map if it's empty.
     mapClear(vm, self);
 
- } else if ((self->capacity > MIN_CAPACITY) &&
+  } else if ((self->capacity > MIN_CAPACITY) &&
              (self->capacity / (GROW_FACTOR * GROW_FACTOR)) >
-             ((self->count * 100) / MAP_LOAD_PERCENT)) {
-
+                 ((self->count * 100) / MAP_LOAD_PERCENT)) {
     // We grow the map when it's filled 75% (MAP_LOAD_PERCENT) by 2
     // (GROW_FACTOR) but we're not shrink the map when it's half filled (ie.
     // half of the capacity is 75%). Instead we wait till it'll become 1/4 is
@@ -996,9 +979,7 @@ Var mapRemoveKey(PKVM* vm, Map* self, Var key) {
   return value;
 }
 
-bool fiberHasError(Fiber* fiber) {
-  return fiber->error != NULL;
-}
+bool fiberHasError(Fiber* fiber) { return fiber->error != NULL; }
 
 void freeObject(PKVM* vm, Object* self) {
   // TODO: Debug trace memory here.
@@ -1054,8 +1035,7 @@ void freeObject(PKVM* vm, Object* self) {
       pkUintBufferClear(&type->field_names, vm);
     } break;
 
-    case OBJ_INST:
-    {
+    case OBJ_INST: {
       Instance* inst = (Instance*)self;
 
       if (inst->is_native) {
@@ -1078,8 +1058,7 @@ void freeObject(PKVM* vm, Object* self) {
 }
 
 uint32_t scriptAddName(Script* self, PKVM* vm, const char* name,
-  uint32_t length) {
-
+                       uint32_t length) {
   for (uint32_t i = 0; i < self->names.count; i++) {
     String* _name = self->names.data[i];
     if (_name->length == length && strncmp(_name->data, name, length) == 0) {
@@ -1132,10 +1111,8 @@ int scriptGetGlobals(Script* script, const char* name, uint32_t length) {
   return -1;
 }
 
-uint32_t scriptAddGlobal(PKVM* vm, Script* script,
-                    const char* name, uint32_t length,
-                    Var value) {
-
+uint32_t scriptAddGlobal(PKVM* vm, Script* script, const char* name,
+                         uint32_t length, Var value) {
   // If already exists update the value.
   int var_ind = scriptGetGlobals(script, name, length);
   if (var_ind != -1) {
@@ -1156,8 +1133,8 @@ void scriptAddMain(PKVM* vm, Script* script) {
   ASSERT(script->body == NULL, OOPS);
 
   const char* fn_name = PK_IMPLICIT_MAIN_NAME;
-  script->body = newFunction(vm, fn_name, (int)strlen(fn_name),
-                             script, false, NULL/*TODO*/);
+  script->body = newFunction(vm, fn_name, (int)strlen(fn_name), script, false,
+                             NULL /*TODO*/);
   script->body->arity = 0;
   script->initialized = false;
 }
@@ -1171,7 +1148,6 @@ bool instGetAttrib(PKVM* vm, Instance* inst, String* attrib, Var* value) {
   ASSERT(vm->fiber != NULL, OOPS);
 
   if (inst->is_native) {
-
     if (vm->config.inst_get_attrib_fn) {
       // Temproarly change the fiber's "return address" to points to the
       // below var 'val' so that the users can use 'pkReturn...()' function
@@ -1180,16 +1156,15 @@ bool instGetAttrib(PKVM* vm, Instance* inst, String* attrib, Var* value) {
       Var val = VAR_UNDEFINED;
 
       vm->fiber->ret = &val;
-      PkStringPtr attr = { attrib->data, NULL, NULL,
-                           attrib->length, attrib->hash };
+      PkStringPtr attr = {attrib->data, NULL, NULL, attrib->length,
+                          attrib->hash};
       vm->config.inst_get_attrib_fn(vm, inst->native, inst->native_id, attr);
       vm->fiber->ret = temp;
 
       if (IS_UNDEF(val)) {
-
         // FIXME: add a list of attribute overrides.
         if (IS_CSTR_EQ(attrib, "as_string", 9,
-          CHECK_HASH("as_string", 0xbdef4147))) {
+                       CHECK_HASH("as_string", 0xbdef4147))) {
           *value = VAR_OBJ(toRepr(vm, VAR_OBJ(inst)));
           return true;
         }
@@ -1210,7 +1185,6 @@ bool instGetAttrib(PKVM* vm, Instance* inst, String* attrib, Var* value) {
     return false;
 
   } else {
-
     // TODO: Optimize this with binary search.
     Class* ty = inst->ins->type;
     for (uint32_t i = 0; i < ty->field_names.count; i++) {
@@ -1231,9 +1205,7 @@ bool instGetAttrib(PKVM* vm, Instance* inst, String* attrib, Var* value) {
 }
 
 bool instSetAttrib(PKVM* vm, Instance* inst, String* attrib, Var value) {
-
   if (inst->is_native) {
-
     if (vm->config.inst_set_attrib_fn) {
       // Temproarly change the fiber's "return address" to points to the
       // below var 'ret' so that the users can use 'pkGetArg...()' function
@@ -1242,8 +1214,8 @@ bool instSetAttrib(PKVM* vm, Instance* inst, String* attrib, Var value) {
       Var attrib_ptr = value;
 
       vm->fiber->ret = &attrib_ptr;
-      PkStringPtr attr = { attrib->data, NULL, NULL,
-                           attrib->length, attrib->hash };
+      PkStringPtr attr = {attrib->data, NULL, NULL, attrib->length,
+                          attrib->hash};
       bool exists = vm->config.inst_set_attrib_fn(vm, inst->native,
                                                   inst->native_id, attr);
       vm->fiber->ret = temp;
@@ -1262,16 +1234,14 @@ bool instSetAttrib(PKVM* vm, Instance* inst, String* attrib, Var value) {
     return false;
 
   } else {
-
     // TODO: Optimize this with binary search.
     Class* ty = inst->ins->type;
     for (uint32_t i = 0; i < ty->field_names.count; i++) {
       ASSERT_INDEX(i, ty->field_names.count);
       ASSERT_INDEX(ty->field_names.data[i], ty->owner->names.count);
       String* f_name = ty->owner->names.data[ty->field_names.data[i]];
-      if (f_name->hash == attrib->hash &&
-        f_name->length == attrib->length &&
-        memcmp(f_name->data, attrib->data, attrib->length) == 0) {
+      if (f_name->hash == attrib->hash && f_name->length == attrib->length &&
+          memcmp(f_name->data, attrib->data, attrib->length) == 0) {
         inst->ins->fields.data[i] = value;
         return true;
       }
@@ -1290,18 +1260,30 @@ bool instSetAttrib(PKVM* vm, Instance* inst, String* attrib, Var value) {
 
 const char* getPkVarTypeName(PkVarType type) {
   switch (type) {
-    case PK_NULL:     return "Null";
-    case PK_BOOL:     return "Bool";
-    case PK_NUMBER:   return "Number";
-    case PK_STRING:   return "String";
-    case PK_LIST:     return "List";
-    case PK_MAP:      return "Map";
-    case PK_RANGE:    return "Range";
-    case PK_SCRIPT:   return "Script";
-    case PK_FUNCTION: return "Function";
-    case PK_FIBER:    return "Fiber";
-    case PK_CLASS:    return "Class";
-    case PK_INST:     return "Inst";
+    case PK_NULL:
+      return "Null";
+    case PK_BOOL:
+      return "Bool";
+    case PK_NUMBER:
+      return "Number";
+    case PK_STRING:
+      return "String";
+    case PK_LIST:
+      return "List";
+    case PK_MAP:
+      return "Map";
+    case PK_RANGE:
+      return "Range";
+    case PK_SCRIPT:
+      return "Script";
+    case PK_FUNCTION:
+      return "Function";
+    case PK_FIBER:
+      return "Fiber";
+    case PK_CLASS:
+      return "Class";
+    case PK_INST:
+      return "Inst";
   }
 
   UNREACHABLE();
@@ -1309,15 +1291,24 @@ const char* getPkVarTypeName(PkVarType type) {
 
 const char* getObjectTypeName(ObjectType type) {
   switch (type) {
-    case OBJ_STRING:  return "String";
-    case OBJ_LIST:    return "List";
-    case OBJ_MAP:     return "Map";
-    case OBJ_RANGE:   return "Range";
-    case OBJ_SCRIPT:  return "Script";
-    case OBJ_FUNC:    return "Func";
-    case OBJ_FIBER:   return "Fiber";
-    case OBJ_CLASS:   return "Class";
-    case OBJ_INST:    return "Inst";
+    case OBJ_STRING:
+      return "String";
+    case OBJ_LIST:
+      return "List";
+    case OBJ_MAP:
+      return "Map";
+    case OBJ_RANGE:
+      return "Range";
+    case OBJ_SCRIPT:
+      return "Script";
+    case OBJ_FUNC:
+      return "Func";
+    case OBJ_FIBER:
+      return "Fiber";
+    case OBJ_CLASS:
+      return "Class";
+    case OBJ_INST:
+      return "Inst";
   }
   UNREACHABLE();
 }
@@ -1325,7 +1316,7 @@ const char* getObjectTypeName(ObjectType type) {
 const char* varTypeName(Var v) {
   if (IS_NULL(v)) return "Null";
   if (IS_BOOL(v)) return "Bool";
-  if (IS_NUM(v))  return "Number";
+  if (IS_NUM(v)) return "Number";
 
   ASSERT(IS_OBJ(v), OOPS);
   Object* obj = AS_OBJ(v);
@@ -1347,28 +1338,27 @@ bool isValuesEqual(Var v1, Var v2) {
   // If we reach here only heap allocated objects could be compared.
   if (!IS_OBJ(v1) || !IS_OBJ(v2)) return false;
 
-  Object* o1 = AS_OBJ(v1), *o2 = AS_OBJ(v2);
+  Object *o1 = AS_OBJ(v1), *o2 = AS_OBJ(v2);
   if (o1->type != o2->type) return false;
 
   switch (o1->type) {
     case OBJ_RANGE:
       return ((Range*)o1)->from == ((Range*)o2)->from &&
-             ((Range*)o1)->to   == ((Range*)o2)->to;
+             ((Range*)o1)->to == ((Range*)o2)->to;
 
     case OBJ_STRING: {
-      String* s1 = (String*)o1, *s2 = (String*)o2;
-      return s1->hash == s2->hash &&
-             s1->length == s2->length &&
+      String *s1 = (String*)o1, *s2 = (String*)o2;
+      return s1->hash == s2->hash && s1->length == s2->length &&
              memcmp(s1->data, s2->data, s1->length) == 0;
     }
 
     case OBJ_LIST: {
       /*
-      * l1 = []; list_append(l1, l1) # [[...]]
-      * l2 = []; list_append(l2, l2) # [[...]]
-      * l1 == l2 ## This will cause a stack overflow but not handling that
-      *          ## (in python too).
-      */
+       * l1 = []; list_append(l1, l1) # [[...]]
+       * l2 = []; list_append(l2, l2) # [[...]]
+       * l1 == l2 ## This will cause a stack overflow but not handling that
+       *          ## (in python too).
+       */
       List *l1 = (List*)o1, *l2 = (List*)o2;
       if (l1->elements.count != l2->elements.count) return false;
       Var* _v1 = l1->elements.data;
@@ -1413,8 +1403,10 @@ static void _toStringInternal(PKVM* vm, const Var v, pkByteBuffer* buff,
     return;
 
   } else if (IS_BOOL(v)) {
-    if (AS_BOOL(v)) pkByteBufferAddString(buff, vm, "true", 4);
-    else pkByteBufferAddString(buff, vm, "false", 5);
+    if (AS_BOOL(v))
+      pkByteBufferAddString(buff, vm, "true", 4);
+    else
+      pkByteBufferAddString(buff, vm, "false", 5);
     return;
 
   } else if (IS_NUM(v)) {
@@ -1439,12 +1431,9 @@ static void _toStringInternal(PKVM* vm, const Var v, pkByteBuffer* buff,
     return;
 
   } else if (IS_OBJ(v)) {
-
     const Object* obj = AS_OBJ(v);
     switch (obj->type) {
-
-      case OBJ_STRING:
-      {
+      case OBJ_STRING: {
         const String* str = (const String*)obj;
         if (outer == NULL && !repr) {
           pkByteBufferAddString(buff, vm, str->data, str->length);
@@ -1454,11 +1443,21 @@ static void _toStringInternal(PKVM* vm, const Var v, pkByteBuffer* buff,
           pkByteBufferWrite(buff, vm, '"');
           for (const char* c = str->data; *c != '\0'; c++) {
             switch (*c) {
-              case '"': pkByteBufferAddString(buff, vm, "\\\"", 2); break;
-              case '\\': pkByteBufferAddString(buff, vm, "\\\\", 2); break;
-              case '\n': pkByteBufferAddString(buff, vm, "\\n", 2); break;
-              case '\r': pkByteBufferAddString(buff, vm, "\\r", 2); break;
-              case '\t': pkByteBufferAddString(buff, vm, "\\t", 2); break;
+              case '"':
+                pkByteBufferAddString(buff, vm, "\\\"", 2);
+                break;
+              case '\\':
+                pkByteBufferAddString(buff, vm, "\\\\", 2);
+                break;
+              case '\n':
+                pkByteBufferAddString(buff, vm, "\\n", 2);
+                break;
+              case '\r':
+                pkByteBufferAddString(buff, vm, "\\r", 2);
+                break;
+              case '\t':
+                pkByteBufferAddString(buff, vm, "\\t", 2);
+                break;
 
               default:
                 pkByteBufferWrite(buff, vm, *c);
@@ -1471,8 +1470,7 @@ static void _toStringInternal(PKVM* vm, const Var v, pkByteBuffer* buff,
         UNREACHABLE();
       }
 
-      case OBJ_LIST:
-      {
+      case OBJ_LIST: {
         const List* list = (const List*)obj;
         if (list->elements.count == 0) {
           pkByteBufferAddString(buff, vm, "[]", 2);
@@ -1489,7 +1487,9 @@ static void _toStringInternal(PKVM* vm, const Var v, pkByteBuffer* buff,
           seq = seq->outer;
         }
         OuterSequence seq_list;
-        seq_list.outer = outer; seq_list.is_list = true; seq_list.list = list;
+        seq_list.outer = outer;
+        seq_list.is_list = true;
+        seq_list.list = list;
 
         pkByteBufferWrite(buff, vm, '[');
         for (uint32_t i = 0; i < list->elements.count; i++) {
@@ -1500,8 +1500,7 @@ static void _toStringInternal(PKVM* vm, const Var v, pkByteBuffer* buff,
         return;
       }
 
-      case OBJ_MAP:
-      {
+      case OBJ_MAP: {
         const Map* map = (const Map*)obj;
         if (map->entries == NULL) {
           pkByteBufferAddString(buff, vm, "{}", 2);
@@ -1518,13 +1517,14 @@ static void _toStringInternal(PKVM* vm, const Var v, pkByteBuffer* buff,
           seq = seq->outer;
         }
         OuterSequence seq_map;
-        seq_map.outer = outer; seq_map.is_list = false; seq_map.map = map;
+        seq_map.outer = outer;
+        seq_map.is_list = false;
+        seq_map.map = map;
 
         pkByteBufferWrite(buff, vm, '{');
-        uint32_t i = 0;     // Index of the current entry to iterate.
-        bool _first = true; // For first element no ',' required.
+        uint32_t i = 0;      // Index of the current entry to iterate.
+        bool _first = true;  // For first element no ',' required.
         do {
-
           // Get the next valid key index.
           bool _done = false;
           while (IS_UNDEF(map->entries[i].key)) {
@@ -1541,23 +1541,23 @@ static void _toStringInternal(PKVM* vm, const Var v, pkByteBuffer* buff,
           pkByteBufferWrite(buff, vm, ':');
           _toStringInternal(vm, map->entries[i].value, buff, &seq_map, true);
 
-          i++; _first = false;
+          i++;
+          _first = false;
         } while (i < map->capacity);
 
         pkByteBufferWrite(buff, vm, '}');
         return;
       }
 
-      case OBJ_RANGE:
-      {
+      case OBJ_RANGE: {
         const Range* range = (const Range*)obj;
 
         char buff_from[STR_DBL_BUFF_SIZE];
-        const int len_from = snprintf(buff_from, sizeof(buff_from),
-                                      DOUBLE_FMT, range->from);
+        const int len_from =
+            snprintf(buff_from, sizeof(buff_from), DOUBLE_FMT, range->from);
         char buff_to[STR_DBL_BUFF_SIZE];
-        const int len_to = snprintf(buff_to, sizeof(buff_to),
-                                    DOUBLE_FMT, range->to);
+        const int len_to =
+            snprintf(buff_to, sizeof(buff_to), DOUBLE_FMT, range->to);
 
         pkByteBufferAddString(buff, vm, "[Range:", 7);
         pkByteBufferAddString(buff, vm, buff_from, len_from);
@@ -1572,7 +1572,7 @@ static void _toStringInternal(PKVM* vm, const Var v, pkByteBuffer* buff,
         pkByteBufferAddString(buff, vm, "[Module:", 8);
         if (scr->module != NULL) {
           pkByteBufferAddString(buff, vm, scr->module->data,
-                              scr->module->length);
+                                scr->module->length);
         } else {
           pkByteBufferWrite(buff, vm, '"');
           pkByteBufferAddString(buff, vm, scr->path->data, scr->path->length);
@@ -1594,7 +1594,7 @@ static void _toStringInternal(PKVM* vm, const Var v, pkByteBuffer* buff,
         const Fiber* fb = (const Fiber*)obj;
         pkByteBufferAddString(buff, vm, "[Fiber:", 7);
         pkByteBufferAddString(buff, vm, fb->func->name,
-                            (uint32_t)strlen(fb->func->name));
+                              (uint32_t)strlen(fb->func->name));
         pkByteBufferWrite(buff, vm, ']');
         return;
       }
@@ -1608,8 +1608,7 @@ static void _toStringInternal(PKVM* vm, const Var v, pkByteBuffer* buff,
         return;
       }
 
-      case OBJ_INST:
-      {
+      case OBJ_INST: {
         const Instance* inst = (const Instance*)obj;
         pkByteBufferWrite(buff, vm, '[');
         pkByteBufferAddString(buff, vm, inst->name,
@@ -1631,12 +1630,12 @@ static void _toStringInternal(PKVM* vm, const Var v, pkByteBuffer* buff,
             _toStringInternal(vm, ins->fields.data[i], buff, outer, repr);
           }
         } else {
-
           char buff_addr[STR_HEX_BUFF_SIZE];
           char* ptr = (char*)buff_addr;
-          (*ptr++) = '0'; (*ptr++) = 'x';
-          const int len = snprintf(ptr, sizeof(buff_addr) - 2,
-                                "%08x", (unsigned int)(uintptr_t)inst->native);
+          (*ptr++) = '0';
+          (*ptr++) = 'x';
+          const int len = snprintf(ptr, sizeof(buff_addr) - 2, "%08x",
+                                   (unsigned int)(uintptr_t)inst->native);
           pkByteBufferAddString(buff, vm, buff_addr, (uint32_t)len);
         }
 
@@ -1644,14 +1643,12 @@ static void _toStringInternal(PKVM* vm, const Var v, pkByteBuffer* buff,
         return;
       }
     }
-
   }
   UNREACHABLE();
   return;
 }
 
 String* toString(PKVM* vm, const Var value) {
-
   // If it's already a string don't allocate a new string.
   if (IS_OBJ_TYPE(value, OBJ_STRING)) {
     return (String*)AS_OBJ(value);
@@ -1675,7 +1672,6 @@ String* toRepr(PKVM* vm, const Var value) {
 }
 
 bool toBool(Var v) {
-
   if (IS_BOOL(v)) return AS_BOOL(v);
   if (IS_NULL(v)) return false;
   if (IS_NUM(v)) return AS_NUM(v) != 0;
@@ -1683,10 +1679,13 @@ bool toBool(Var v) {
   ASSERT(IS_OBJ(v), OOPS);
   Object* o = AS_OBJ(v);
   switch (o->type) {
-    case OBJ_STRING: return ((String*)o)->length != 0;
-    case OBJ_LIST:   return ((List*)o)->elements.count != 0;
-    case OBJ_MAP:    return ((Map*)o)->count != 0;
-    case OBJ_RANGE: // [[FALLTHROUGH]]
+    case OBJ_STRING:
+      return ((String*)o)->length != 0;
+    case OBJ_LIST:
+      return ((List*)o)->elements.count != 0;
+    case OBJ_MAP:
+      return ((Map*)o)->count != 0;
+    case OBJ_RANGE:  // [[FALLTHROUGH]]
     case OBJ_SCRIPT:
     case OBJ_FUNC:
     case OBJ_FIBER:

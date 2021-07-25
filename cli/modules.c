@@ -15,9 +15,7 @@
 // callback.
 #define FREE_OBJ(ptr) free(ptr)
 
-void initObj(Obj* obj, ObjType type) {
-  obj->type = type;
-}
+void initObj(Obj* obj, ObjType type) { obj->type = type; }
 
 void objGetAttrib(PKVM* vm, void* instance, uint32_t id, PkStringPtr attrib) {
   Obj* obj = (Obj*)instance;
@@ -31,7 +29,7 @@ void objGetAttrib(PKVM* vm, void* instance, uint32_t id, PkStringPtr attrib) {
     }
   }
 
-  return; // Attribute not found.
+  return;  // Attribute not found.
 }
 
 bool objSetAttrib(PKVM* vm, void* instance, uint32_t id, PkStringPtr attrib) {
@@ -54,7 +52,8 @@ void freeObj(PKVM* vm, void* instance, uint32_t id) {
   if (obj->type == OBJ_FILE) {
     File* file = (File*)obj;
     if (!file->closed) {
-      if (fclose(file->fp) != 0) { /* TODO: error! */ }
+      if (fclose(file->fp) != 0) { /* TODO: error! */
+      }
       file->closed = true;
     }
   }
@@ -64,7 +63,8 @@ void freeObj(PKVM* vm, void* instance, uint32_t id) {
 
 const char* getObjName(uint32_t id) {
   switch ((ObjType)id) {
-    case OBJ_FILE: return "File";
+    case OBJ_FILE:
+      return "File";
   }
   return NULL;
 }
@@ -74,15 +74,15 @@ const char* getObjName(uint32_t id) {
 /*****************************************************************************/
 
 #include "thirdparty/cwalk/cwalk.h"
-  #if defined(_WIN32) && (defined(_MSC_VER) || defined(__TINYC__))
+#if defined(_WIN32) && (defined(_MSC_VER) || defined(__TINYC__))
   #include "thirdparty/dirent/dirent.h"
 #else
   #include <dirent.h>
 #endif
 
 #if defined(_WIN32)
-  #include <windows.h>
   #include <direct.h>
+  #include <windows.h>
   #define get_cwd _getcwd
 #else
   #include <unistd.h>
@@ -97,9 +97,7 @@ const char* getObjName(uint32_t id) {
 /* PUBLIC FUNCTIONS                                                          */
 /*****************************************************************************/
 
-bool pathIsAbsolute(const char* path) {
-  return cwk_path_is_absolute(path);
-}
+bool pathIsAbsolute(const char* path) { return cwk_path_is_absolute(path); }
 
 void pathGetDirName(const char* path, size_t* length) {
   cwk_path_get_dirname(path, length);
@@ -110,7 +108,7 @@ size_t pathNormalize(const char* path, char* buff, size_t buff_size) {
 }
 
 size_t pathJoin(const char* path_a, const char* path_b, char* buffer,
-  size_t buff_size) {
+                size_t buff_size) {
   return cwk_path_join(path_a, path_b, buffer, buff_size);
 }
 
@@ -134,7 +132,7 @@ static inline bool pathIsDirectoryExists(const char* path) {
     closedir(dir);
     return true;
   } else if (errno == ENOENT) { /* Directory does not exist. */
-  } else { /* opendir() failed for some other reason. */
+  } else {                      /* opendir() failed for some other reason. */
   }
 
   return false;
@@ -145,7 +143,6 @@ static inline bool pathIsExists(const char* path) {
 }
 
 static inline size_t pathAbs(const char* path, char* buff, size_t buff_size) {
-
   char cwd[FILENAME_MAX];
 
   if (get_cwd(cwd, sizeof(cwd)) == NULL) {
@@ -183,7 +180,7 @@ static void _pathAbspath(PKVM* vm) {
 }
 
 static void _pathRelpath(PKVM* vm) {
-  const char* from, * path;
+  const char *from, *path;
   if (!pkGetArgString(vm, 1, &from, NULL)) return;
   if (!pkGetArgString(vm, 2, &path, NULL)) return;
 
@@ -194,18 +191,18 @@ static void _pathRelpath(PKVM* vm) {
   pathAbs(path, abs_path, sizeof(abs_path));
 
   char result[FILENAME_MAX];
-  size_t len = cwk_path_get_relative(abs_from, abs_path,
-    result, sizeof(result));
+  size_t len =
+      cwk_path_get_relative(abs_from, abs_path, result, sizeof(result));
   pkReturnStringLength(vm, result, len);
 }
 
 static void _pathJoin(PKVM* vm) {
-  const char* paths[MAX_JOIN_PATHS + 1]; // +1 for NULL.
+  const char* paths[MAX_JOIN_PATHS + 1];  // +1 for NULL.
   int argc = pkGetArgc(vm);
 
   if (argc > MAX_JOIN_PATHS) {
-    pkSetRuntimeError(vm, "Cannot join more than " STRINGIFY(MAX_JOIN_PATHS)
-                           "paths.");
+    pkSetRuntimeError(
+        vm, "Cannot join more than " STRINGIFY(MAX_JOIN_PATHS) "paths.");
     return;
   }
 
@@ -288,19 +285,19 @@ static void _pathIsDir(PKVM* vm) {
 void registerModulePath(PKVM* vm) {
   PkHandle* path = pkNewModule(vm, "path");
 
-  pkModuleAddFunction(vm, path, "setunix",   _pathSetStyleUnix, 1);
-  pkModuleAddFunction(vm, path, "getcwd",    _pathGetCWD,       0);
-  pkModuleAddFunction(vm, path, "abspath",   _pathAbspath,      1);
-  pkModuleAddFunction(vm, path, "relpath",   _pathRelpath,      2);
-  pkModuleAddFunction(vm, path, "join",      _pathJoin,        -1);
-  pkModuleAddFunction(vm, path, "normalize", _pathNormalize,    1);
-  pkModuleAddFunction(vm, path, "basename",  _pathBaseName,     1);
-  pkModuleAddFunction(vm, path, "dirname",   _pathDirName,      1);
-  pkModuleAddFunction(vm, path, "isabspath", _pathIsPathAbs,    1);
-  pkModuleAddFunction(vm, path, "getext",    _pathGetExtension, 1);
-  pkModuleAddFunction(vm, path, "exists",    _pathExists,       1);
-  pkModuleAddFunction(vm, path, "isfile",    _pathIsFile,       1);
-  pkModuleAddFunction(vm, path, "isdir",     _pathIsDir,        1);
+  pkModuleAddFunction(vm, path, "setunix", _pathSetStyleUnix, 1);
+  pkModuleAddFunction(vm, path, "getcwd", _pathGetCWD, 0);
+  pkModuleAddFunction(vm, path, "abspath", _pathAbspath, 1);
+  pkModuleAddFunction(vm, path, "relpath", _pathRelpath, 2);
+  pkModuleAddFunction(vm, path, "join", _pathJoin, -1);
+  pkModuleAddFunction(vm, path, "normalize", _pathNormalize, 1);
+  pkModuleAddFunction(vm, path, "basename", _pathBaseName, 1);
+  pkModuleAddFunction(vm, path, "dirname", _pathDirName, 1);
+  pkModuleAddFunction(vm, path, "isabspath", _pathIsPathAbs, 1);
+  pkModuleAddFunction(vm, path, "getext", _pathGetExtension, 1);
+  pkModuleAddFunction(vm, path, "exists", _pathExists, 1);
+  pkModuleAddFunction(vm, path, "isfile", _pathIsFile, 1);
+  pkModuleAddFunction(vm, path, "isdir", _pathIsDir, 1);
 
   pkReleaseHandle(vm, path);
 }
@@ -310,7 +307,6 @@ void registerModulePath(PKVM* vm) {
 /*****************************************************************************/
 
 static void _fileOpen(PKVM* vm) {
-
   int argc = pkGetArgc(vm);
   if (!pkCheckArgcRange(vm, argc, 1, 2)) return;
 
@@ -325,12 +321,30 @@ static void _fileOpen(PKVM* vm) {
 
     // Check if the mode string is valid, and update the mode value.
     do {
-      if (strcmp(mode_str, "r")  == 0) { mode = FMODE_READ;       break; }
-      if (strcmp(mode_str, "w")  == 0) { mode = FMODE_WRITE;      break; }
-      if (strcmp(mode_str, "a")  == 0) { mode = FMODE_APPEND;     break; }
-      if (strcmp(mode_str, "r+") == 0) { mode = FMODE_READ_EXT;   break; }
-      if (strcmp(mode_str, "w+") == 0) { mode = FMODE_WRITE_EXT;  break; }
-      if (strcmp(mode_str, "a+") == 0) { mode = FMODE_APPEND_EXT; break; }
+      if (strcmp(mode_str, "r") == 0) {
+        mode = FMODE_READ;
+        break;
+      }
+      if (strcmp(mode_str, "w") == 0) {
+        mode = FMODE_WRITE;
+        break;
+      }
+      if (strcmp(mode_str, "a") == 0) {
+        mode = FMODE_APPEND;
+        break;
+      }
+      if (strcmp(mode_str, "r+") == 0) {
+        mode = FMODE_READ_EXT;
+        break;
+      }
+      if (strcmp(mode_str, "w+") == 0) {
+        mode = FMODE_WRITE_EXT;
+        break;
+      }
+      if (strcmp(mode_str, "a+") == 0) {
+        mode = FMODE_APPEND_EXT;
+        break;
+      }
 
       // TODO: (fmt, ...) va_arg for runtime error public api.
       // If we reached here, that means it's an invalid mode string.
@@ -377,7 +391,8 @@ static void _fileRead(PKVM* vm) {
 
 static void _fileWrite(PKVM* vm) {
   File* file;
-  const char* text; uint32_t length;
+  const char* text;
+  uint32_t length;
   if (!pkGetArgInst(vm, 1, OBJ_FILE, (void**)&file)) return;
   if (!pkGetArgString(vm, 2, &text, &length)) return;
 
@@ -404,7 +419,8 @@ static void _fileClose(PKVM* vm) {
   }
 
   if (fclose(file->fp) != 0) {
-    pkSetRuntimeError(vm, "fclose() failed!\n"                     \
+    pkSetRuntimeError(vm,
+                      "fclose() failed!\n"
                       "  at " __FILE__ ":" STRINGIFY(__LINE__) ".");
   }
   file->closed = true;
@@ -413,8 +429,8 @@ static void _fileClose(PKVM* vm) {
 void registerModuleFile(PKVM* vm) {
   PkHandle* file = pkNewModule(vm, "File");
 
-  pkModuleAddFunction(vm, file, "open",  _fileOpen, -1);
-  pkModuleAddFunction(vm, file, "read",  _fileRead,  1);
+  pkModuleAddFunction(vm, file, "open", _fileOpen, -1);
+  pkModuleAddFunction(vm, file, "read", _fileRead, 1);
   pkModuleAddFunction(vm, file, "write", _fileWrite, 2);
   pkModuleAddFunction(vm, file, "close", _fileClose, 1);
 

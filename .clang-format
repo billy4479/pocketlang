@@ -1,0 +1,4 @@
+---
+BasedOnStyle: Google
+IndentPPDirectives: BeforeHash
+ColumnLimit: 79

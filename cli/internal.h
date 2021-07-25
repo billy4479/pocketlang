@@ -6,14 +6,13 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <pocketlang.h>
-
 #include <assert.h>
 #include <errno.h>
-#include <stdlib.h>
-#include <string.h>
+#include <pocketlang.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 // Note that the cli itself is not a part of the pocketlang compiler, instead
 // it's a host application to run pocketlang from the command line. We're
@@ -24,14 +23,15 @@
 // pocketlang contain 2 headers (we'll always try to be minimal).
 #include "common.h"
 
-#define CLI_NOTICE                                                            \
-  "PocketLang " PK_VERSION_STRING " (https://github.com/ThakeeNathees/pocketlang/)\n" \
-  "Copyright(c) 2020 - 2021 ThakeeNathees.\n"                                 \
+#define CLI_NOTICE                                    \
+  "PocketLang " PK_VERSION_STRING                     \
+  " (https://github.com/ThakeeNathees/pocketlang/)\n" \
+  "Copyright(c) 2020 - 2021 ThakeeNathees.\n"         \
   "Free and open source software under the terms of the MIT license.\n"
 
- // FIXME: the vm user data of cli.
+// FIXME: the vm user data of cli.
 typedef struct {
   bool repl_mode;
 } VmUserData;
 
-#endif // COMMON_H
+#endif  // COMMON_H

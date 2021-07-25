@@ -23,4 +23,4 @@ void dumpGlobalValues(PKVM* vm);
 // Dump the current (top most) stack call frame.
 void dumpStackFrame(PKVM* vm);
 
-#endif // DEBUG_H
+#endif  // DEBUG_H
